@@ -16,6 +16,8 @@
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --star: #fbbf24;
+      --imdb-yellow: #f5c518;
+      --tmdb-blue: #01b4e4;
       --radius: 12px;
     }
 
@@ -81,12 +83,6 @@
       -webkit-text-fill-color: transparent;
     }
 
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
     .quick-player-form {
       display: flex;
       align-items: center;
@@ -100,8 +96,8 @@
       background: transparent;
       border: none;
       padding: 0.4rem 0.7rem;
-      font-size: 0.85rem;
-      width: 150px;
+      font-size: 0.82rem;
+      width: 190px;
       color: #fff;
       outline: none;
     }
@@ -146,7 +142,7 @@
     .screen-wrapper {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      padding-top: 56.25%;
       background: #000;
       border-radius: var(--radius);
       overflow: hidden;
@@ -215,10 +211,9 @@
       cursor: pointer;
     }
 
-    .tool-btn:hover {
-      background: var(--border);
-    }
+    .tool-btn:hover { background: var(--border); }
 
+    /* Theater Sidebar */
     .meta-column {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -253,7 +248,7 @@
 
     .meta-badges {
       display: flex;
-      gap: 0.6rem;
+      gap: 0.5rem;
       align-items: center;
       flex-wrap: wrap;
       font-size: 0.8rem;
@@ -266,9 +261,39 @@
       color: var(--text-muted);
     }
 
-    .meta-rating {
-      color: var(--star);
+    /* Database Link Badges in Theater */
+    .external-db-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.2rem;
+    }
+
+    .db-link-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
       font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .db-link-badge:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .db-imdb {
+      background: var(--imdb-yellow);
+      color: #000;
+    }
+
+    .db-tmdb {
+      background: var(--tmdb-blue);
+      color: #fff;
     }
 
     .genre-list {
@@ -294,7 +319,7 @@
       overflow-y: auto;
     }
 
-    /* Catalog Section */
+    /* CATALOG SECTION */
     .catalog-section {
       max-width: 1440px;
       margin: 0 auto;
@@ -328,34 +353,62 @@
       background: rgba(99, 102, 241, 0.15);
     }
 
+    /* Upgraded Search & Filters Bar */
     .filter-bar {
       display: flex;
       flex-wrap: wrap;
       gap: 0.65rem;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.8rem;
     }
 
-    input, select {
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 250px;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 0.6rem 0.9rem;
+      padding: 0.65rem 2.2rem 0.65rem 0.9rem;
       border-radius: 8px;
       font-size: 0.88rem;
       outline: none;
     }
 
-    .search-input {
-      flex: 1;
-      min-width: 220px;
+    .search-clear-btn {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    .search-clear-btn:hover { color: #fff; }
+
+    select, input[type="number"] {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
     }
 
     .filter-btn {
       background: var(--accent);
       border: none;
       color: #fff;
-      padding: 0.6rem 1.1rem;
+      padding: 0.65rem 1.2rem;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
@@ -367,9 +420,18 @@
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 0.6rem 1rem;
+      padding: 0.65rem 1rem;
       border-radius: 8px;
       cursor: pointer;
+    }
+
+    .search-feedback-tag {
+      font-size: 0.8rem;
+      color: #a5b4fc;
+      margin-bottom: 1rem;
+      display: none;
+      align-items: center;
+      gap: 6px;
     }
 
     .catalog-status-tag {
@@ -385,6 +447,7 @@
     .status-proxy { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
     .status-failover { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
 
+    /* Grid */
     .movie-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -431,9 +494,7 @@
       transition: transform 0.3s ease;
     }
 
-    .movie-card:hover .poster-box img {
-      transform: scale(1.05);
-    }
+    .movie-card:hover .poster-box img { transform: scale(1.05); }
 
     .card-play-overlay {
       position: absolute;
@@ -457,9 +518,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
-    .movie-card:hover .card-play-overlay {
-      opacity: 1;
-    }
+    .movie-card:hover .card-play-overlay { opacity: 1; }
 
     .badge-top-right {
       position: absolute;
@@ -495,7 +554,7 @@
       padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 0.45rem;
       flex: 1;
       justify-content: space-between;
     }
@@ -510,6 +569,23 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    /* Dual IMDb & TMDB Badges on Cards */
+    .card-id-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .id-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .id-tag-imdb { background: rgba(245, 197, 24, 0.2); color: var(--imdb-yellow); border: 1px solid rgba(245, 197, 24, 0.4); }
+    .id-tag-tmdb { background: rgba(1, 180, 228, 0.2); color: var(--tmdb-blue); border: 1px solid rgba(1, 180, 228, 0.4); }
 
     .movie-meta-info {
       display: flex;
@@ -529,6 +605,7 @@
       font-weight: 700;
     }
 
+    /* Skeleton Loading */
     .skeleton-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -549,12 +626,71 @@
       100% { background-position: -200% 0; }
     }
 
-    .pagination {
+    /* FULL INTERACTIVE NUMBERED PAGINATION */
+    .pagination-bar {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 1rem;
+      gap: 0.5rem;
       margin-top: 2.5rem;
+    }
+
+    .page-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      min-width: 38px;
+      height: 38px;
+      padding: 0 0.6rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .page-btn:hover {
+      background: var(--border);
+      border-color: var(--accent);
+    }
+
+    .page-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--border);
+    }
+
+    .page-ellipsis {
+      color: var(--text-muted);
+      font-weight: bold;
+      padding: 0 4px;
+    }
+
+    .jump-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-left: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .jump-input {
+      width: 55px;
+      height: 38px;
+      text-align: center;
+      padding: 0;
     }
 
     @media (max-width: 960px) {
@@ -575,11 +711,10 @@
         <div>Enjoy <span>Cinema</span></div>
       </div>
 
-      <div class="header-controls">
-        <div class="quick-player-form">
-          <input type="text" id="quickIdInput" placeholder="Movie ID (e.g. tt4154796)" value="tt4154796" />
-          <button id="quickPlayBtn">▶ Play ID</button>
-        </div>
+      <!-- Quick Play by either IMDb ID or TMDB ID -->
+      <div class="quick-player-form">
+        <input type="text" id="quickIdInput" placeholder="IMDb (tt...) or TMDB ID" value="tt4154796" />
+        <button id="quickPlayBtn">▶ Play ID</button>
       </div>
     </div>
   </header>
@@ -588,10 +723,9 @@
   <section class="theater-section" id="theater">
     <div class="theater-container">
       
-      <!-- Video Player Screen (SANDBOXED TO PREVENT MALICIOUS POPUPS) -->
+      <!-- Video Screen -->
       <div class="player-column">
         <div class="screen-wrapper" id="playerScreen">
-          <!-- Notice the sandbox attribute: explicitly prevents popups and external redirects -->
           <iframe 
             id="streamPlayer" 
             src="https://vidspark.to/movie/tt4154796" 
@@ -618,7 +752,7 @@
         </div>
       </div>
 
-      <!-- Sidebar Movie Info -->
+      <!-- Sidebar Movie Info with both IMDb & TMDB links -->
       <div class="meta-column">
         <div class="meta-poster-box">
           <img id="theaterPoster" referrerpolicy="no-referrer" src="https://images.metahub.space/poster/medium/tt4154796/img" alt="Poster" />
@@ -627,10 +761,21 @@
           <h2 class="meta-title" id="theaterTitle">Avengers: Endgame</h2>
           <div class="meta-badges" style="margin-top: 4px;">
             <span class="meta-pill" id="theaterYear">2019</span>
-            <span class="meta-pill meta-rating" id="theaterRating">★ 8.4 / 10</span>
+            <span class="meta-pill" style="color: var(--star); font-weight:700;" id="theaterRating">★ 8.4 / 10</span>
             <span class="playing-tag">PLAYING NOW</span>
           </div>
+
+          <!-- Dual Database Direct Links -->
+          <div class="external-db-links">
+            <a id="theaterImdbLink" href="https://www.imdb.com/title/tt4154796/" target="_blank" class="db-link-badge db-imdb">
+              IMDb: <span id="theaterImdbId">tt4154796</span> ↗
+            </a>
+            <a id="theaterTmdbLink" href="https://www.themoviedb.org/movie/299534" target="_blank" class="db-link-badge db-tmdb">
+              TMDB: <span id="theaterTmdbId">299534</span> ↗
+            </a>
+          </div>
         </div>
+
         <div class="genre-list" id="theaterGenres">
           <span class="genre-tag">Action</span>
           <span class="genre-tag">Adventure</span>
@@ -646,6 +791,7 @@
 
   <!-- CATALOG EXPLORER -->
   <main class="catalog-section">
+    <!-- Quick filter chips -->
     <div class="chips-bar">
       <div class="chip active" data-order="views" data-dir="desc">🔥 Most Viewed</div>
       <div class="chip" data-order="views_day" data-dir="desc">⚡ Trending Today</div>
@@ -654,9 +800,12 @@
       <div class="chip" data-special="slider">🎞️ Slider Picks</div>
     </div>
 
-    <!-- Filters Bar -->
+    <!-- Complete Search Bar with Auto-Detection (Title, IMDb, TMDB) -->
     <div class="filter-bar">
-      <input type="text" id="queryInput" class="search-input" placeholder="Search by title..." />
+      <div class="search-wrapper">
+        <input type="text" id="queryInput" class="search-input" placeholder="Search title, IMDb ID (tt...), or TMDB ID..." />
+        <button id="searchClearBtn" class="search-clear-btn" title="Clear Search">✕</button>
+      </div>
       
       <select id="orderingSelect">
         <option value="views">Sort: Total Views</option>
@@ -679,6 +828,12 @@
       <button id="resetBtn" class="reset-btn">Reset</button>
     </div>
 
+    <!-- Search feedback badge -->
+    <div id="searchFeedback" class="search-feedback-tag">
+      <span>Filtering by: <strong id="searchFeedbackText"></strong></span>
+      <button onclick="clearSearch()" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.8rem; text-decoration:underline;">Clear filter</button>
+    </div>
+
     <!-- Status Bar -->
     <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
       <div style="display:flex; align-items:center; gap:0.6rem;">
@@ -691,12 +846,8 @@
     <!-- Movie Grid -->
     <div id="movieGrid" class="movie-grid"></div>
 
-    <!-- Pagination -->
-    <div class="pagination" id="paginationWrap" style="display: none;">
-      <button id="prevBtn" class="reset-btn">← Previous</button>
-      <span id="pageIndicator" style="font-weight: 600; font-size: 0.9rem;">1</span>
-      <button id="nextBtn" class="reset-btn">Next →</button>
-    </div>
+    <!-- FULL INTERACTIVE NUMBERED PAGINATION -->
+    <div class="pagination-bar" id="paginationBar" style="display: none;"></div>
   </main>
 
   <script>
@@ -704,11 +855,13 @@
     let activeMovieId = "tt4154796";
     let activeServerType = "direct";
     let currentPage = 1;
+    let totalPagesEstimate = 50; // Dynamic total pages
     const resultsPerPage = 24;
     let activeSpecialFilter = null;
 
     const metaCache = new Map();
 
+    // DOM Elements
     const streamPlayer = document.getElementById("streamPlayer");
     const theaterPoster = document.getElementById("theaterPoster");
     const theaterTitle = document.getElementById("theaterTitle");
@@ -716,18 +869,22 @@
     const theaterRating = document.getElementById("theaterRating");
     const theaterGenres = document.getElementById("theaterGenres");
     const theaterSynopsis = document.getElementById("theaterSynopsis");
+    const theaterImdbId = document.getElementById("theaterImdbId");
+    const theaterImdbLink = document.getElementById("theaterImdbLink");
+    const theaterTmdbId = document.getElementById("theaterTmdbId");
+    const theaterTmdbLink = document.getElementById("theaterTmdbLink");
     const srvCdn = document.getElementById("srvCdn");
     const srvDirect = document.getElementById("srvDirect");
     const grid = document.getElementById("movieGrid");
     const resultsCount = document.getElementById("resultsCount");
     const catalogStatusBadge = document.getElementById("catalogStatusBadge");
     const pageInfo = document.getElementById("pageInfo");
-    const pageIndicator = document.getElementById("pageIndicator");
-    const paginationWrap = document.getElementById("paginationWrap");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
+    const paginationBar = document.getElementById("paginationBar");
 
     const queryInput = document.getElementById("queryInput");
+    const searchClearBtn = document.getElementById("searchClearBtn");
+    const searchFeedback = document.getElementById("searchFeedback");
+    const searchFeedbackText = document.getElementById("searchFeedbackText");
     const orderingSelect = document.getElementById("orderingSelect");
     const directionSelect = document.getElementById("directionSelect");
     const yearInput = document.getElementById("yearInput");
@@ -760,27 +917,48 @@
       alert("Stream URL copied to clipboard:\n" + url);
     }
 
-    function playMovie(id, title, poster, year) {
+    // Play Movie & populate both IMDb and TMDB badges
+    function playMovie(id, title, poster, year, imdbId, tmdbId) {
       if (!id) return;
       activeMovieId = String(id).trim();
 
-      // Ensure the sandboxing is strictly retained when src updates
       streamPlayer.setAttribute("sandbox", "allow-scripts allow-same-origin allow-presentation");
       streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType, true);
 
       theaterTitle.textContent = title || `Movie (${activeMovieId})`;
       if (poster) theaterPoster.src = poster;
       theaterYear.textContent = year || "";
-      theaterSynopsis.textContent = "Buffering stream...";
+      theaterSynopsis.textContent = "Connecting to stream...";
 
+      // Resolve and show IMDb link
+      const resolvedImdb = imdbId || (activeMovieId.startsWith("tt") ? activeMovieId : null);
+      if (resolvedImdb) {
+        theaterImdbId.textContent = resolvedImdb;
+        theaterImdbLink.href = `https://www.imdb.com/title/${resolvedImdb}/`;
+        theaterImdbLink.style.display = "inline-flex";
+      } else {
+        theaterImdbLink.style.display = "none";
+      }
+
+      // Resolve and show TMDB link
+      const resolvedTmdb = tmdbId || (!activeMovieId.startsWith("tt") && /^\d+$/.test(activeMovieId) ? activeMovieId : null);
+      if (resolvedTmdb) {
+        theaterTmdbId.textContent = resolvedTmdb;
+        theaterTmdbLink.href = `https://www.themoviedb.org/movie/${resolvedTmdb}`;
+        theaterTmdbLink.style.display = "inline-flex";
+      } else {
+        theaterTmdbLink.style.display = "none";
+      }
+
+      // Highlight active card
       document.querySelectorAll(".movie-card").forEach(c => c.classList.remove("now-playing"));
       const card = document.getElementById(`card-${activeMovieId}`);
       if (card) card.classList.add("now-playing");
 
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      if (activeMovieId.startsWith("tt")) {
-        fetchCinemeta(activeMovieId);
+      if (resolvedImdb) {
+        fetchCinemeta(resolvedImdb);
       }
     }
 
@@ -812,19 +990,28 @@
       if (meta.genres && meta.genres.length > 0) {
         theaterGenres.innerHTML = meta.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join("");
       }
+      // If TMDB ID is discovered from metadata, update button
+      if (meta.moviedb_id || meta.tmdb_id) {
+        const tmdb = meta.moviedb_id || meta.tmdb_id;
+        theaterTmdbId.textContent = tmdb;
+        theaterTmdbLink.href = `https://www.themoviedb.org/movie/${tmdb}`;
+        theaterTmdbLink.style.display = "inline-flex";
+      }
     }
 
     quickPlayBtn.addEventListener("click", () => {
       const id = quickIdInput.value.trim();
-      if (id) playMovie(id, id, null, "");
+      if (id) playMovie(id, id, null, "", id.startsWith("tt") ? id : null, /^\d+$/.test(id) ? id : null);
     });
+
     quickIdInput.addEventListener("keyup", (e) => {
       if (e.key === "Enter") {
         const id = quickIdInput.value.trim();
-        if (id) playMovie(id, id, null, "");
+        if (id) playMovie(id, id, null, "", id.startsWith("tt") ? id : null, /^\d+$/.test(id) ? id : null);
       }
     });
 
+    // Multi-Proxy Cascade
     async function robustFetchJson(url) {
       try {
         const directRes = await fetch(url, { mode: 'cors', credentials: 'omit' });
@@ -864,11 +1051,35 @@
       throw new Error("Cloudflare block encountered");
     }
 
+    // Failover catalog with accurate search handling
     async function fetchFailoverCatalog(query, page) {
       updateBadge("Failover Catalog (Live)", "status-failover");
-      
+
+      // Direct IMDb ID search fallback
+      if (query && /^tt\d+$/i.test(query)) {
+        const res = await fetch(`https://v3-cinemeta.strem.io/meta/movie/${query}.json`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.meta) {
+            const m = json.meta;
+            return [{
+              id: m.id,
+              imdb_id: m.id,
+              tmdbid: m.moviedb_id || m.tmdb_id || null,
+              title: m.name,
+              year: m.releaseInfo || m.year || "",
+              poster: m.poster,
+              description: m.description,
+              imdbRating: m.imdbRating,
+              genres: m.genres
+            }];
+          }
+        }
+      }
+
+      // Title search fallback
       let cinemetaUrl = `https://v3-cinemeta.strem.io/catalog/movie/top.json`;
-      if (query && query.length >= 2) {
+      if (query && query.length > 0) {
         cinemetaUrl = `https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(query)}.json`;
       } else if (page > 1) {
         cinemetaUrl = `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${(page - 1) * 20}.json`;
@@ -881,6 +1092,7 @@
       return (data.metas || []).map(m => ({
         id: m.id,
         imdb_id: m.id,
+        tmdbid: m.moviedb_id || m.tmdb_id || null,
         title: m.name,
         year: m.releaseInfo || m.year || "",
         poster: m.poster,
@@ -896,6 +1108,7 @@
       catalogStatusBadge.className = `catalog-status-tag ${className}`;
     }
 
+    // Main Catalog Fetch with Smart Parameter Routing
     async function fetchCatalog() {
       renderSkeletons();
       resultsCount.textContent = "Connecting to catalog...";
@@ -907,7 +1120,22 @@
       params.set("direction", directionSelect.value);
 
       const q = queryInput.value.trim();
-      if (q.length >= 3) params.set("query", q);
+
+      // Smart Parameter Routing: Detects IMDb ID vs TMDB ID vs Title
+      if (q.length > 0) {
+        if (/^tt\d+$/i.test(q)) {
+          params.set("imdb_id", q);
+          showSearchFeedback(`IMDb ID: ${q}`);
+        } else if (/^\d{4,9}$/.test(q) && !yearInput.value) {
+          params.set("tmdbid", q);
+          showSearchFeedback(`TMDB ID: ${q}`);
+        } else {
+          params.set("query", q);
+          showSearchFeedback(`Title: "${q}"`);
+        }
+      } else {
+        hideSearchFeedback();
+      }
 
       const yr = yearInput.value.trim();
       if (yr) params.set("year", yr);
@@ -921,13 +1149,20 @@
       try {
         const data = await robustFetchJson(endpoint);
         movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
+        
+        // Dynamic estimate of total pages if returned by API
+        if (data.total_pages) totalPagesEstimate = data.total_pages;
+        else if (data.last_page) totalPagesEstimate = data.last_page;
+        else if (movies.length < resultsPerPage) totalPagesEstimate = currentPage;
+        else totalPagesEstimate = Math.max(currentPage + 10, totalPagesEstimate);
       } catch (err) {
         try {
           movies = await fetchFailoverCatalog(q, currentPage);
+          totalPagesEstimate = movies.length < 15 ? currentPage : Math.max(currentPage + 5, 20);
         } catch (failoverErr) {
           grid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem;">
-              <p style="color: #ef4444; margin-bottom: 1rem;">Unable to load catalog. Please refresh.</p>
+              <p style="color: #ef4444; margin-bottom: 1rem;">Unable to load catalog. Please retry.</p>
               <button class="reset-btn" onclick="fetchCatalog()">Retry Connection</button>
             </div>
           `;
@@ -938,11 +1173,10 @@
 
       renderMovies(movies);
       resultsCount.textContent = `Showing ${movies.length} titles`;
-      pageInfo.textContent = `Page ${currentPage}`;
-      pageIndicator.textContent = currentPage;
-      prevBtn.disabled = currentPage <= 1;
-      nextBtn.disabled = movies.length < 15;
-      paginationWrap.style.display = "flex";
+      pageInfo.textContent = `Page ${currentPage} of ${totalPagesEstimate}`;
+      
+      // Render the full interactive numbered pagination bar
+      renderNumberedPagination(currentPage, totalPagesEstimate);
     }
 
     function renderSkeletons() {
@@ -957,11 +1191,12 @@
       `).join("");
     }
 
-    function getStreamId(item) {
-      return item.imdb_id || 
-        (typeof item.id === 'string' && item.id.startsWith('tt') ? item.id : null) || 
-        item.tmdbid || 
-        item.id;
+    // Resolves stream ID, IMDb ID, and TMDB ID
+    function resolveMovieIds(item) {
+      const imdb = item.imdb_id || (typeof item.id === 'string' && item.id.startsWith('tt') ? item.id : null);
+      const tmdb = item.tmdbid || item.tmdb_id || (typeof item.id === 'number' || /^\d+$/.test(item.id) ? item.id : null);
+      const streamId = imdb || tmdb || item.id;
+      return { streamId, imdb, tmdb };
     }
 
     function extractPoster(item) {
@@ -970,7 +1205,7 @@
       if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
       if (item.image && item.image.startsWith("http")) return item.image;
       
-      const imdb = item.imdb_id || (typeof item.id === 'string' && item.id.startsWith('tt') ? item.id : null);
+      const { imdb } = resolveMovieIds(item);
       if (imdb) return `https://images.metahub.space/poster/medium/${imdb}/img`;
       return null;
     }
@@ -990,14 +1225,15 @@
       grid.innerHTML = "";
 
       if (!movies || movies.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">No movies found. Try searching another title.</div>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">No movies found for your query. Try searching another title, IMDb ID, or TMDB ID.</div>`;
+        paginationBar.style.display = "none";
         return;
       }
 
       movies.forEach(item => {
         let title = extractTitle(item);
         const year = item.year || (item.release_date ? item.release_date.split("-")[0] : "");
-        const streamId = getStreamId(item);
+        const { streamId, imdb, tmdb } = resolveMovieIds(item);
         const poster = extractPoster(item);
         const isCurrentlyPlaying = (streamId === activeMovieId);
 
@@ -1006,7 +1242,7 @@
         card.id = `card-${streamId}`;
         card.innerHTML = `
           <div class="poster-box">
-            <img referrerpolicy="no-referrer" src="${poster || 'https://images.metahub.space/poster/medium/' + streamId + '/img'}" alt="${title || 'Movie'}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'450\\'><rect fill=\\'%23131722\\' width=\\'300\\' height=\\'450\\'/><text fill=\\'%2394a3b8\\' font-size=\\'14\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>No Poster</text></svg>'" />
+            <img referrerpolicy="no-referrer" src="${poster || 'https://images.metahub.space/poster/medium/' + (imdb || streamId) + '/img'}" alt="${title || 'Movie'}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'450\\'><rect fill=\\'%23131722\\' width=\\'300\\' height=\\'450\\'/><text fill=\\'%2394a3b8\\' font-size=\\'14\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>No Poster</text></svg>'" />
             <div class="card-play-overlay">
               <div class="card-play-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
@@ -1016,7 +1252,14 @@
             <span class="badge-top-left" style="${item.imdbRating ? 'display:flex;' : 'display:none;'}" id="rating-${streamId}">★ ${item.imdbRating || ''}</span>
           </div>
           <div class="card-content">
-            <h4 class="movie-name" id="title-${streamId}">${escapeHtml(title || (streamId ? `IMDb: ${streamId}` : `Movie #${item.id}`))}</h4>
+            <h4 class="movie-name" id="title-${streamId}">${escapeHtml(title || (imdb ? `IMDb: ${imdb}` : `Movie #${item.id}`))}</h4>
+            
+            <!-- Dual Database Badges displayed on card -->
+            <div class="card-id-row">
+              ${imdb ? `<span class="id-tag id-tag-imdb">IMDb: ${imdb}</span>` : ''}
+              ${tmdb ? `<span class="id-tag id-tag-tmdb">TMDB: ${tmdb}</span>` : ''}
+            </div>
+
             <div class="movie-meta-info">
               <span>${item.views ? Number(item.views).toLocaleString() + ' views' : ''}</span>
               <span class="playing-tag">▶ PLAY</span>
@@ -1025,13 +1268,13 @@
         `;
 
         card.addEventListener("click", () => {
-          playMovie(streamId, title, poster, year);
+          playMovie(streamId, title, poster, year, imdb, tmdb);
         });
 
         grid.appendChild(card);
 
-        if (streamId && streamId.startsWith("tt") && !item.imdbRating) {
-          enrichCard(streamId, card);
+        if (imdb && !item.imdbRating) {
+          enrichCard(imdb, card);
         }
       });
     }
@@ -1067,13 +1310,138 @@
       if (imgEl && meta.poster && (imgEl.src.includes("No Poster") || imgEl.src.startsWith("data:"))) {
         imgEl.src = meta.poster;
       }
+
+      // Add TMDB badge if discovered asynchronously
+      const idRow = card.querySelector(".card-id-row");
+      const tmdbId = meta.moviedb_id || meta.tmdb_id;
+      if (idRow && tmdbId && !idRow.querySelector(".id-tag-tmdb")) {
+        const tmdbSpan = document.createElement("span");
+        tmdbSpan.className = "id-tag id-tag-tmdb";
+        tmdbSpan.textContent = `TMDB: ${tmdbId}`;
+        idRow.appendChild(tmdbSpan);
+      }
     }
 
-    function escapeHtml(str) {
-      return String(str || "").replace(/[&<>"']/g, m => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      })[m]);
+    /* ==============================================================
+       FULL INTERACTIVE NUMBERED PAGINATION ENGINE
+       ============================================================== */
+    function renderNumberedPagination(current, total) {
+      paginationBar.innerHTML = "";
+      if (total <= 1) {
+        paginationBar.style.display = "none";
+        return;
+      }
+
+      paginationBar.style.display = "flex";
+
+      // « First Button
+      const firstBtn = createPageBtn("« First", 1, current === 1);
+      paginationBar.appendChild(firstBtn);
+
+      // ‹ Prev Button
+      const prevBtn = createPageBtn("‹ Prev", current - 1, current === 1);
+      paginationBar.appendChild(prevBtn);
+
+      // Number range window (shows 5 pages centered on current)
+      let startPage = Math.max(1, current - 2);
+      let endPage = Math.min(total, current + 2);
+
+      if (current <= 3) endPage = Math.min(total, 5);
+      if (current >= total - 2) startPage = Math.max(1, total - 4);
+
+      if (startPage > 1) {
+        paginationBar.appendChild(createPageBtn("1", 1));
+        if (startPage > 2) paginationBar.appendChild(createEllipsis());
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        const numBtn = createPageBtn(i, i);
+        if (i === current) numBtn.classList.add("active");
+        paginationBar.appendChild(numBtn);
+      }
+
+      if (endPage < total) {
+        if (endPage < total - 1) paginationBar.appendChild(createEllipsis());
+        paginationBar.appendChild(createPageBtn(total, total));
+      }
+
+      // Next › Button
+      const nextBtn = createPageBtn("Next ›", current + 1, current === total);
+      paginationBar.appendChild(nextBtn);
+
+      // Last » Button
+      const lastBtn = createPageBtn("Last »", total, current === total);
+      paginationBar.appendChild(lastBtn);
+
+      // Direct Jump To Page Input
+      const jumpWrapper = document.createElement("div");
+      jumpWrapper.className = "jump-wrapper";
+      jumpWrapper.innerHTML = `
+        <span>Go to:</span>
+        <input type="number" class="search-input jump-input" id="jumpPageInput" min="1" max="${total}" value="${current}">
+        <button class="reset-btn" style="padding:0 0.6rem; height:38px;" onclick="jumpToPageDirect()">Go</button>
+      `;
+      paginationBar.appendChild(jumpWrapper);
     }
+
+    function createPageBtn(text, pageNum, disabled = false) {
+      const btn = document.createElement("button");
+      btn.className = "page-btn";
+      btn.innerHTML = text;
+      btn.disabled = disabled;
+      if (!disabled) {
+        btn.onclick = () => goToPage(pageNum);
+      }
+      return btn;
+    }
+
+    function createEllipsis() {
+      const span = document.createElement("span");
+      span.className = "page-ellipsis";
+      span.textContent = "...";
+      return span;
+    }
+
+    function goToPage(pageNum) {
+      if (pageNum === currentPage || pageNum < 1) return;
+      currentPage = pageNum;
+      fetchCatalog();
+      document.querySelector(".catalog-section").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function jumpToPageDirect() {
+      const input = document.getElementById("jumpPageInput");
+      const val = parseInt(input.value);
+      if (val && val >= 1) {
+        goToPage(val);
+      }
+    }
+
+    // Search Box Handlers
+    function showSearchFeedback(text) {
+      searchFeedbackText.textContent = text;
+      searchFeedback.style.display = "flex";
+      searchClearBtn.style.display = "block";
+    }
+
+    function hideSearchFeedback() {
+      searchFeedback.style.display = "none";
+      searchClearBtn.style.display = queryInput.value.trim().length > 0 ? "block" : "none";
+    }
+
+    function clearSearch() {
+      queryInput.value = "";
+      searchClearBtn.style.display = "none";
+      hideSearchFeedback();
+      currentPage = 1;
+      fetchCatalog();
+    }
+
+    searchClearBtn.addEventListener("click", clearSearch);
+
+    queryInput.addEventListener("input", () => {
+      searchClearBtn.style.display = queryInput.value.trim().length > 0 ? "block" : "none";
+    });
 
     searchBtn.addEventListener("click", () => {
       currentPage = 1;
@@ -1093,24 +1461,11 @@
       orderingSelect.value = "views";
       directionSelect.value = "desc";
       activeSpecialFilter = null;
+      hideSearchFeedback();
       document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
       document.querySelector(".chip").classList.add("active");
       currentPage = 1;
       fetchCatalog();
-    });
-
-    prevBtn.addEventListener("click", () => {
-      if (currentPage > 1) {
-        currentPage--;
-        fetchCatalog();
-        document.querySelector(".catalog-section").scrollIntoView({ behavior: "smooth" });
-      }
-    });
-
-    nextBtn.addEventListener("click", () => {
-      currentPage++;
-      fetchCatalog();
-      document.querySelector(".catalog-section").scrollIntoView({ behavior: "smooth" });
     });
 
     document.querySelectorAll(".chip").forEach(chip => {
@@ -1130,6 +1485,13 @@
       });
     });
 
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, m => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[m]);
+    }
+
+    // Start
     fetchCatalog();
   </script>
 </body>
