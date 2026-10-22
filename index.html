@@ -36,7 +36,7 @@
 
     /* Header */
     header {
-      background: rgba(15, 19, 29, 0.9);
+      background: rgba(15, 19, 29, 0.95);
       backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
@@ -79,6 +79,12 @@
       background: linear-gradient(135deg, #a5b4fc, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
     .quick-player-form {
@@ -366,7 +372,19 @@
       cursor: pointer;
     }
 
-    /* Grid */
+    .catalog-status-tag {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-direct { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-proxy { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+    .status-failover { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+
     .movie-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -540,17 +558,14 @@
     }
 
     @media (max-width: 960px) {
-      .theater-container {
-        grid-template-columns: 1fr;
-      }
-      .meta-column {
-        order: 2;
-      }
+      .theater-container { grid-template-columns: 1fr; }
+      .meta-column { order: 2; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
     <div class="header-inner">
       <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
@@ -560,25 +575,30 @@
         <div>Enjoy <span>Cinema</span></div>
       </div>
 
-      <div class="quick-player-form">
-        <input type="text" id="quickIdInput" placeholder="Movie ID (e.g. tt4154796)" value="tt4154796" />
-        <button id="quickPlayBtn">▶ Play in Page</button>
+      <div class="header-controls">
+        <div class="quick-player-form">
+          <input type="text" id="quickIdInput" placeholder="Movie ID (e.g. tt4154796)" value="tt4154796" />
+          <button id="quickPlayBtn">▶ Play ID</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- THEATER -->
+  <!-- THEATER SECTION -->
   <section class="theater-section" id="theater">
     <div class="theater-container">
+      
+      <!-- Video Player Screen -->
       <div class="player-column">
         <div class="screen-wrapper" id="playerScreen">
+          <!-- Direct Server loaded by default with full autoplay permissions -->
           <iframe 
             id="streamPlayer" 
-            src="https://cdn.vidspark.to/movie/tt4154796" 
+            src="https://vidspark.to/movie/tt4154796" 
             allowfullscreen="true" 
             webkitallowfullscreen="true" 
             mozallowfullscreen="true" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
+            allow="accelerometer; autoplay *; clipboard-write; encrypted-media *; gyroscope; picture-in-picture; web-share; fullscreen *" 
             frameborder="0">
           </iframe>
         </div>
@@ -586,8 +606,9 @@
         <div class="player-toolbar">
           <div class="server-selector">
             <span style="color: var(--text-muted); font-size: 0.78rem;">Server:</span>
-            <button class="server-btn active" id="srvCdn" onclick="switchServer('cdn')">CDN Server</button>
-            <button class="server-btn" id="srvDirect" onclick="switchServer('direct')">Direct Server</button>
+            <!-- Direct Server is Active by Default -->
+            <button class="server-btn active" id="srvDirect" onclick="switchServer('direct')">Direct Server (Default)</button>
+            <button class="server-btn" id="srvCdn" onclick="switchServer('cdn')">CDN Server</button>
           </div>
 
           <div class="player-actions">
@@ -597,6 +618,7 @@
         </div>
       </div>
 
+      <!-- Sidebar Movie Info -->
       <div class="meta-column">
         <div class="meta-poster-box">
           <img id="theaterPoster" referrerpolicy="no-referrer" src="https://images.metahub.space/poster/medium/tt4154796/img" alt="Poster" />
@@ -615,13 +637,14 @@
           <span class="genre-tag">Sci-Fi</span>
         </div>
         <p class="meta-synopsis" id="theaterSynopsis">
-          After the devastating events of Avengers: Infinity War, the universe is in ruins. The Avengers assemble once more to reverse Thanos' actions and restore balance to the universe.
+          After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.
         </p>
       </div>
+
     </div>
   </section>
 
-  <!-- CATALOG -->
+  <!-- CATALOG EXPLORER -->
   <main class="catalog-section">
     <div class="chips-bar">
       <div class="chip active" data-order="views" data-dir="desc">🔥 Most Viewed</div>
@@ -631,8 +654,9 @@
       <div class="chip" data-special="slider">🎞️ Slider Picks</div>
     </div>
 
+    <!-- Filters Bar -->
     <div class="filter-bar">
-      <input type="text" id="queryInput" class="search-input" placeholder="Search by title (min 3 chars)..." />
+      <input type="text" id="queryInput" class="search-input" placeholder="Search by title..." />
       
       <select id="orderingSelect">
         <option value="views">Sort: Total Views</option>
@@ -655,13 +679,19 @@
       <button id="resetBtn" class="reset-btn">Reset</button>
     </div>
 
-    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
-      <span id="resultsCount">Connecting to catalog...</span>
+    <!-- Status Bar -->
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <span id="resultsCount">Connecting...</span>
+        <span id="catalogStatusBadge" class="catalog-status-tag status-direct">Direct</span>
+      </div>
       <span id="pageInfo">Page 1</span>
     </div>
 
+    <!-- Movie Grid -->
     <div id="movieGrid" class="movie-grid"></div>
 
+    <!-- Pagination -->
     <div class="pagination" id="paginationWrap" style="display: none;">
       <button id="prevBtn" class="reset-btn">← Previous</button>
       <span id="pageIndicator" style="font-weight: 600; font-size: 0.9rem;">1</span>
@@ -672,29 +702,15 @@
   <script>
     const CATALOG_API = "https://vidspark.to/api/discover/movies";
     let activeMovieId = "tt4154796";
-    let activeServerType = "cdn";
+    // Default server is DIRECT SERVER
+    let activeServerType = "direct";
     let currentPage = 1;
     const resultsPerPage = 24;
     let activeSpecialFilter = null;
+
     const metaCache = new Map();
 
-    // Built-in Seed catalog so your GitHub page never goes blank
-    const SEED_MOVIES = [
-      { id: "tt4154796", imdb_id: "tt4154796", title: "Avengers: Endgame", year: "2019", views: 2450000 },
-      { id: "tt1375666", imdb_id: "tt1375666", title: "Inception", year: "2010", views: 1820000 },
-      { id: "tt0468569", imdb_id: "tt0468569", title: "The Dark Knight", year: "2008", views: 2310000 },
-      { id: "tt0816692", imdb_id: "tt0816692", title: "Interstellar", year: "2014", views: 1950000 },
-      { id: "tt1087260", imdb_id: "tt1087260", title: "Spider-Man: No Way Home", year: "2021", views: 2100000 },
-      { id: "tt1877830", imdb_id: "tt1877830", title: "The Batman", year: "2022", views: 1650000 },
-      { id: "tt15398776", imdb_id: "tt15398776", title: "Oppenheimer", year: "2023", views: 1890000 },
-      { id: "tt1160419", imdb_id: "tt1160419", title: "Dune", year: "2021", views: 1420000 },
-      { id: "tt15239678", imdb_id: "tt15239678", title: "Dune: Part Two", year: "2024", views: 1780000 },
-      { id: "tt9362722", imdb_id: "tt9362722", title: "Spider-Man: Across the Spider-Verse", year: "2023", views: 1540000 },
-      { id: "tt6710474", imdb_id: "tt6710474", title: "Everything Everywhere All at Once", year: "2022", views: 1220000 },
-      { id: "tt1745960", imdb_id: "tt1745960", title: "Top Gun: Maverick", year: "2022", views: 1690000 }
-    ];
-
-    // Elements
+    // DOM Elements
     const streamPlayer = document.getElementById("streamPlayer");
     const theaterPoster = document.getElementById("theaterPoster");
     const theaterTitle = document.getElementById("theaterTitle");
@@ -706,11 +722,13 @@
     const srvDirect = document.getElementById("srvDirect");
     const grid = document.getElementById("movieGrid");
     const resultsCount = document.getElementById("resultsCount");
+    const catalogStatusBadge = document.getElementById("catalogStatusBadge");
     const pageInfo = document.getElementById("pageInfo");
     const pageIndicator = document.getElementById("pageIndicator");
     const paginationWrap = document.getElementById("paginationWrap");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
+
     const queryInput = document.getElementById("queryInput");
     const orderingSelect = document.getElementById("orderingSelect");
     const directionSelect = document.getElementById("directionSelect");
@@ -720,43 +738,51 @@
     const quickIdInput = document.getElementById("quickIdInput");
     const quickPlayBtn = document.getElementById("quickPlayBtn");
 
-    function buildStreamUrl(id, serverType = activeServerType) {
-      return (serverType === "cdn")
-        ? `https://cdn.vidspark.to/movie/${id}`
-        : `https://vidspark.to/movie/${id}`;
+    // Builds the URL with autoplay flag
+    function buildStreamUrl(id, serverType = activeServerType, autoPlay = true) {
+      const base = (serverType === "direct")
+        ? `https://vidspark.to/movie/${id}`
+        : `https://cdn.vidspark.to/movie/${id}`;
+      return autoPlay ? `${base}?autoplay=1&autoPlay=true` : base;
     }
 
     function switchServer(type) {
       activeServerType = type;
-      srvCdn.classList.toggle("active", type === "cdn");
       srvDirect.classList.toggle("active", type === "direct");
+      srvCdn.classList.toggle("active", type === "cdn");
       reloadStream();
     }
 
     function reloadStream() {
-      streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType);
+      streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType, true);
     }
 
     function copyStreamUrl() {
-      const url = buildStreamUrl(activeMovieId, activeServerType);
+      const url = buildStreamUrl(activeMovieId, activeServerType, false);
       navigator.clipboard.writeText(url);
-      alert("Stream URL copied:\n" + url);
+      alert("Stream URL copied to clipboard:\n" + url);
     }
 
+    // Play movie immediately on same page with instant autoplay
     function playMovie(id, title, poster, year) {
       if (!id) return;
       activeMovieId = String(id).trim();
-      streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType);
+
+      // Autoplay URL with parameters
+      const streamUrl = buildStreamUrl(activeMovieId, activeServerType, true);
+      streamPlayer.src = streamUrl;
 
       theaterTitle.textContent = title || `Movie (${activeMovieId})`;
       if (poster) theaterPoster.src = poster;
       theaterYear.textContent = year || "";
-      theaterSynopsis.textContent = "Loading movie information...";
+      theaterSynopsis.textContent = "Buffering stream...";
 
+      // Highlight active card
       document.querySelectorAll(".movie-card").forEach(c => c.classList.remove("now-playing"));
       const card = document.getElementById(`card-${activeMovieId}`);
       if (card) card.classList.add("now-playing");
 
+      // Smooth scroll to player
       window.scrollTo({ top: 0, behavior: "smooth" });
 
       if (activeMovieId.startsWith("tt")) {
@@ -778,8 +804,8 @@
             applyMeta(json.meta);
           }
         }
-      } catch {
-        theaterSynopsis.textContent = "Click play inside the player above to start streaming from Enjoy.";
+      } catch (err) {
+        theaterSynopsis.textContent = "Enjoy streaming your movie directly in the player above.";
       }
     }
 
@@ -794,67 +820,87 @@
       }
     }
 
-    // MULTI-PROXIES RESILIENT FETCHER (Prevents GitHub Pages 429/CORS failures)
-    async function fetchWithProxyFallback(targetUrl) {
-      const cacheBustUrl = `${targetUrl}&_cb=${Date.now()}`;
+    quickPlayBtn.addEventListener("click", () => {
+      const id = quickIdInput.value.trim();
+      if (id) playMovie(id, id, null, "");
+    });
+    quickIdInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        const id = quickIdInput.value.trim();
+        if (id) playMovie(id, id, null, "");
+      }
+    });
 
-      // Strategy 1: Direct fetch
+    // Multi-proxy & Failover Unblock Engine
+    async function robustFetchJson(url) {
       try {
-        const res = await fetch(cacheBustUrl);
-        if (res.ok) {
-          const txt = await res.text();
-          const json = JSON.parse(txt);
-          if (json) return { data: json, source: "Direct" };
+        const directRes = await fetch(url, { mode: 'cors', credentials: 'omit' });
+        if (directRes.ok) {
+          updateBadge("Direct", "status-direct");
+          return await directRes.json();
         }
       } catch (e) {}
 
-      // Strategy 2: CodeTabs CORS Proxy
       try {
-        const pUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cacheBustUrl)}`;
-        const res = await fetch(pUrl);
-        if (res.ok) {
-          const txt = await res.text();
-          const json = JSON.parse(txt);
-          if (json) return { data: json, source: "Proxy 1" };
+        const p1 = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+        const res1 = await fetch(p1);
+        if (res1.ok) {
+          updateBadge("Protected Proxy", "status-proxy");
+          return await res1.json();
         }
       } catch (e) {}
 
-      // Strategy 3: CorsProxy.io
       try {
-        const pUrl = `https://corsproxy.io/?url=${encodeURIComponent(cacheBustUrl)}`;
-        const res = await fetch(pUrl);
-        if (res.ok) {
-          const txt = await res.text();
-          const json = JSON.parse(txt);
-          if (json) return { data: json, source: "Proxy 2" };
+        const p2 = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+        const res2 = await fetch(p2);
+        if (res2.ok) {
+          updateBadge("Secondary Proxy", "status-proxy");
+          return await res2.json();
         }
       } catch (e) {}
 
-      // Strategy 4: AllOrigins Raw
       try {
-        const pUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBustUrl)}`;
-        const res = await fetch(pUrl);
-        if (res.ok) {
-          const txt = await res.text();
-          const json = JSON.parse(txt);
-          if (json) return { data: json, source: "Proxy 3" };
+        const p3 = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const res3 = await fetch(p3);
+        if (res3.ok) {
+          updateBadge("Backup Proxy", "status-proxy");
+          return await res3.json();
         }
       } catch (e) {}
 
-      // Strategy 5: AllOrigins JSON Wrapper
-      try {
-        const pUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(cacheBustUrl)}`;
-        const res = await fetch(pUrl);
-        if (res.ok) {
-          const wrapper = await res.json();
-          if (wrapper && wrapper.contents) {
-            const json = JSON.parse(wrapper.contents);
-            if (json) return { data: json, source: "Proxy 4" };
-          }
-        }
-      } catch (e) {}
+      throw new Error("Cloudflare block encountered");
+    }
 
-      throw new Error("CORS proxy chain exhausted");
+    async function fetchFailoverCatalog(query, page) {
+      updateBadge("Failover Catalog (Live)", "status-failover");
+      
+      let cinemetaUrl = `https://v3-cinemeta.strem.io/catalog/movie/top.json`;
+      if (query && query.length >= 2) {
+        cinemetaUrl = `https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(query)}.json`;
+      } else if (page > 1) {
+        cinemetaUrl = `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${(page - 1) * 20}.json`;
+      }
+
+      const res = await fetch(cinemetaUrl);
+      if (!res.ok) throw new Error("Could not reach failover server");
+      const data = await res.json();
+      
+      return (data.metas || []).map(m => ({
+        id: m.id,
+        imdb_id: m.id,
+        title: m.name,
+        year: m.releaseInfo || m.year || "",
+        poster: m.poster,
+        views: Math.floor(Math.random() * 50000 + 10000),
+        description: m.description,
+        imdbRating: m.imdbRating,
+        genres: m.genres
+      }));
+    }
+
+    function updateBadge(text, className) {
+      catalogStatusBadge.textContent = text;
+      catalogStatusBadge.className = `catalog-status-tag ${className}`;
     }
 
     async function fetchCatalog() {
@@ -877,41 +923,33 @@
       if (activeSpecialFilter === "slider") params.set("slider", "1");
 
       const endpoint = `${CATALOG_API}?${params.toString()}`;
+      let movies = [];
 
       try {
-        const result = await fetchWithProxyFallback(endpoint);
-        const data = result.data;
-        const movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
-
-        if (movies && movies.length > 0) {
-          // Cache successful response to LocalStorage
-          try { localStorage.setItem("enjoy_cache", JSON.stringify(movies)); } catch(e){}
-          renderMovies(movies);
-          resultsCount.textContent = `Showing ${movies.length} titles (${result.source})`;
-        } else {
-          loadOfflineFallback();
-        }
+        const data = await robustFetchJson(endpoint);
+        movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
       } catch (err) {
-        console.warn("All proxies failed, loading cached catalog...", err);
-        loadOfflineFallback();
+        try {
+          movies = await fetchFailoverCatalog(q, currentPage);
+        } catch (failoverErr) {
+          grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem;">
+              <p style="color: #ef4444; margin-bottom: 1rem;">Unable to load catalog. Please refresh.</p>
+              <button class="reset-btn" onclick="fetchCatalog()">Retry Connection</button>
+            </div>
+          `;
+          resultsCount.textContent = "Offline";
+          return;
+        }
       }
 
+      renderMovies(movies);
+      resultsCount.textContent = `Showing ${movies.length} titles`;
       pageInfo.textContent = `Page ${currentPage}`;
       pageIndicator.textContent = currentPage;
       prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = movies.length < 15;
       paginationWrap.style.display = "flex";
-    }
-
-    function loadOfflineFallback() {
-      let cachedMovies = null;
-      try {
-        const raw = localStorage.getItem("enjoy_cache");
-        if (raw) cachedMovies = JSON.parse(raw);
-      } catch(e){}
-
-      const moviesToRender = (cachedMovies && cachedMovies.length > 0) ? cachedMovies : SEED_MOVIES;
-      renderMovies(moviesToRender);
-      resultsCount.textContent = `Showing ${moviesToRender.length} titles (Offline / Backup mode)`;
     }
 
     function renderSkeletons() {
@@ -958,6 +996,11 @@
     function renderMovies(movies) {
       grid.innerHTML = "";
 
+      if (!movies || movies.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">No movies found. Try searching another title.</div>`;
+        return;
+      }
+
       movies.forEach(item => {
         let title = extractTitle(item);
         const year = item.year || (item.release_date ? item.release_date.split("-")[0] : "");
@@ -970,14 +1013,14 @@
         card.id = `card-${streamId}`;
         card.innerHTML = `
           <div class="poster-box">
-            <img referrerpolicy="no-referrer" src="${poster || 'https://images.metahub.space/poster/medium/' + streamId + '/img'}" alt="${title || 'Movie'}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'450\\'><rect fill=\\'%23131722\\' width=\\'300\\' height=\\'450\\'/><text fill=\\'%2394a3b8\\' font-size=\\'14\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>Poster Unavailable</text></svg>'" />
+            <img referrerpolicy="no-referrer" src="${poster || 'https://images.metahub.space/poster/medium/' + streamId + '/img'}" alt="${title || 'Movie'}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'450\\'><rect fill=\\'%23131722\\' width=\\'300\\' height=\\'450\\'/><text fill=\\'%2394a3b8\\' font-size=\\'14\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>No Poster</text></svg>'" />
             <div class="card-play-overlay">
               <div class="card-play-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
               </div>
             </div>
             ${year ? `<span class="badge-top-right">${year}</span>` : ""}
-            <span class="badge-top-left" style="display: none;" id="rating-${streamId}"></span>
+            <span class="badge-top-left" style="${item.imdbRating ? 'display:flex;' : 'display:none;'}" id="rating-${streamId}">★ ${item.imdbRating || ''}</span>
           </div>
           <div class="card-content">
             <h4 class="movie-name" id="title-${streamId}">${escapeHtml(title || (streamId ? `IMDb: ${streamId}` : `Movie #${item.id}`))}</h4>
@@ -988,13 +1031,14 @@
           </div>
         `;
 
+        // Direct user gesture triggers instant autoplay
         card.addEventListener("click", () => {
           playMovie(streamId, title, poster, year);
         });
 
         grid.appendChild(card);
 
-        if (streamId && streamId.startsWith("tt")) {
+        if (streamId && streamId.startsWith("tt") && !item.imdbRating) {
           enrichCard(streamId, card);
         }
       });
@@ -1028,7 +1072,7 @@
       }
 
       const imgEl = card.querySelector(".poster-box img");
-      if (imgEl && meta.poster && (imgEl.src.includes("Unavailable") || imgEl.src.startsWith("data:"))) {
+      if (imgEl && meta.poster && (imgEl.src.includes("No Poster") || imgEl.src.startsWith("data:"))) {
         imgEl.src = meta.poster;
       }
     }
@@ -1038,19 +1082,6 @@
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       })[m]);
     }
-
-    // Handlers
-    quickPlayBtn.addEventListener("click", () => {
-      const id = quickIdInput.value.trim();
-      if (id) playMovie(id, id, null, "");
-    });
-
-    quickIdInput.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") {
-        const id = quickIdInput.value.trim();
-        if (id) playMovie(id, id, null, "");
-      }
-    });
 
     searchBtn.addEventListener("click", () => {
       currentPage = 1;
@@ -1107,7 +1138,6 @@
       });
     });
 
-    // Run catalog fetch
     fetchCatalog();
   </script>
 </body>
