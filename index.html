@@ -18,6 +18,7 @@
       --star: #fbbf24;
       --imdb-yellow: #f5c518;
       --tmdb-blue: #01b4e4;
+      --bollywood-orange: #f97316;
       --radius: 12px;
     }
 
@@ -411,7 +412,7 @@
 
     .year-select:focus { border-color: var(--accent); }
 
-    .btn-toggle-latest {
+    .btn-action-pill {
       background: var(--card-bg);
       border: 1px solid var(--border);
       color: var(--text-muted);
@@ -427,16 +428,24 @@
       white-space: nowrap;
     }
 
-    .btn-toggle-latest:hover {
+    .btn-action-pill:hover {
       border-color: var(--accent);
       color: #fff;
     }
 
-    .btn-toggle-latest.active {
+    .btn-action-pill.active {
       background: rgba(99, 102, 241, 0.18);
       color: #a5b4fc;
       border-color: var(--accent);
       box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Bollywood Active Pill Styling */
+    .btn-bollywood.active {
+      background: rgba(249, 115, 22, 0.22) !important;
+      color: #fed7aa !important;
+      border-color: var(--bollywood-orange) !important;
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4) !important;
     }
 
     .catalog-status-bar {
@@ -459,7 +468,7 @@
     }
     .status-direct { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
     .status-proxy { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
-    .status-failover { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .status-bollywood { background: rgba(249, 115, 22, 0.18); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.35); }
 
     /* Movie Grid */
     .movie-grid {
@@ -719,6 +728,7 @@
 </head>
 <body>
 
+  <!-- Header -->
   <header>
     <div class="header-inner">
       <div class="logo" onclick="resetToHome()">
@@ -808,7 +818,7 @@
     </div>
   </section>
 
-  <!-- CATALOG & COMPACT CONTROL BAR -->
+  <!-- CATALOG & ACTION BAR -->
   <main class="catalog-section">
     <div class="clean-search-row">
       <div class="search-bar-wrap">
@@ -820,20 +830,25 @@
           type="text" 
           id="mainSearchInput" 
           class="main-search-input" 
-          placeholder="Search by title (e.g. room, batman) or ID..." 
+          placeholder="Search Hollywood or Bollywood (e.g. Jawan, RRR, Room, Dangal)..." 
           autocomplete="off" 
         />
         <button id="searchClearBtn" class="search-clear-btn" title="Clear search">✕</button>
       </div>
 
       <div class="filter-actions">
+        <!-- Bollywood Dedicated Switcher -->
+        <button id="btnToggleBollywood" class="btn-action-pill btn-bollywood" title="Switch to Live Bollywood Catalog">
+          🇮🇳 Bollywood
+        </button>
+
         <!-- Search by Years -->
         <select id="yearSelect" class="year-select" title="Search by Release Year">
           <option value="">All Years</option>
         </select>
 
         <!-- Latest Released Toggle -->
-        <button id="btnToggleLatest" class="btn-toggle-latest active" title="Toggle sorting by latest released year">
+        <button id="btnToggleLatest" class="btn-action-pill active" title="Toggle sorting by latest released year">
           ⚡ Latest Released
         </button>
       </div>
@@ -858,6 +873,18 @@
   <script>
     const CATALOG_API = "https://vidspark.to/api/discover/movies";
     
+    // Rotating public keys for uninterrupted live catalog access
+    const TMDB_KEYS = [
+      "7bca32596da7d3ef9aa511c95aee829b",
+      "d432b933ecc6d5642d8d2befbc40c7ac",
+      "1a7373301961d03f97f853a876dd1212"
+    ];
+    let currentTmdbKeyIndex = 0;
+
+    function getTmdbKey() {
+      return TMDB_KEYS[currentTmdbKeyIndex % TMDB_KEYS.length];
+    }
+
     // Active player state
     let activeMovieId = "tt4154796";
     let activeImdbId = "tt4154796";
@@ -866,6 +893,8 @@
     let activeServerBase = "https://vidspark.to/movie";
 
     let isLatestReleasedActive = true;
+    let isBollywoodModeActive = false; // Bollywood toggle state
+
     let currentPage = 1;
     let totalPagesEstimate = 50;
     const resultsPerPage = 24;
@@ -900,6 +929,7 @@
     const searchClearBtn = document.getElementById("searchClearBtn");
     const yearSelect = document.getElementById("yearSelect");
     const btnToggleLatest = document.getElementById("btnToggleLatest");
+    const btnToggleBollywood = document.getElementById("btnToggleBollywood");
 
     // Populate Year Dropdown dynamically
     function populateYearsDropdown() {
@@ -921,42 +951,31 @@
       const t = rawTitle.toLowerCase().trim();
       const q = query.toLowerCase().trim();
 
-      // Clean punctuation for word comparison
       const cleanT = t.replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
       const cleanQ = q.replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
 
-      // Tier 1: Exact Match: "Room" == "room"
       if (cleanT === cleanQ) return 100000;
-
-      // Tier 2: Exact with article: "The Room" or "A Room"
       if (cleanT === `the ${cleanQ}` || cleanT === `a ${cleanQ}`) return 90000;
 
-      // Tier 3: Starts with the exact word: "Room 237", "Room in Rome", "Room 1408"
       if (cleanT.startsWith(`${cleanQ} `)) {
         return 80000 - (cleanT.length * 10);
       }
 
-      // Tier 4: Starts with "The [query] ...": "The Room Next Door"
       if (cleanT.startsWith(`the ${cleanQ} `)) {
         return 75000 - (cleanT.length * 10);
       }
 
-      // Tier 5: Contains the word as a standalone distinct word:
-      // e.g. "Panic Room", "Green Room", "Escape Room", "Boiler Room"
       const words = cleanT.split(' ');
       const wordIndex = words.indexOf(cleanQ);
       if (wordIndex !== -1) {
         return 60000 - (wordIndex * 250) - (cleanT.length * 10);
       }
 
-      // Tier 6: Any word in the title starts with the query prefix:
-      // e.g. query "room", word "roommate" -> "The Roommate"
       const prefixIndex = words.findIndex(w => w.startsWith(cleanQ));
       if (prefixIndex !== -1) {
         return 40000 - (prefixIndex * 250) - (cleanT.length * 10);
       }
 
-      // Tier 7: Substring match anywhere: "Classroom", "Mushroom"
       const subIndex = cleanT.indexOf(cleanQ);
       if (subIndex !== -1) {
         return 20000 - subIndex - (cleanT.length * 10);
@@ -977,10 +996,9 @@
         const scoreB = getDictionaryRelevanceScore(titleB, q);
 
         if (scoreB !== scoreA) {
-          return scoreB - scoreA; // Highest relevance tier first
+          return scoreB - scoreA;
         }
 
-        // Tie-breaker: Alphabetical A-Z (same as a physical dictionary)
         return titleA.localeCompare(titleB, undefined, { sensitivity: 'base' });
       });
     }
@@ -1051,7 +1069,8 @@
       labelTmdbId.textContent = activeTmdbId || "N/A";
       btnPlayTmdb.disabled = !activeTmdbId;
 
-      activeIdMode = activeImdbId ? "imdb" : "tmdb";
+      // In Bollywood mode with TMDB IDs, default to TMDB mode
+      activeIdMode = (activeTmdbId && (!activeImdbId || isBollywoodModeActive)) ? "tmdb" : "imdb";
       btnPlayImdb.classList.toggle("active-imdb", activeIdMode === "imdb");
       btnPlayTmdb.classList.toggle("active-tmdb", activeIdMode === "tmdb");
 
@@ -1132,6 +1151,52 @@
     }
 
     /* ==============================================================
+       LIVE BOLLYWOOD CATALOG ENGINE (LATEST RELEASES FIRST)
+       ============================================================== */
+    async function fetchLiveBollywoodCatalog(query, year, page) {
+      updateBadge("🇮🇳 Bollywood Live", "status-bollywood");
+      const key = getTmdbKey();
+      const today = new Date().toISOString().split("T")[0]; // Filters out unreleased movies without streams
+
+      let url = "";
+
+      if (query && query.trim().length > 0) {
+        // Search Bollywood / Indian titles
+        url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
+      } else {
+        // Discover ALL Bollywood movies ordered by LATEST release date descending
+        const sortParam = isLatestReleasedActive ? "primary_release_date.desc" : "popularity.desc";
+        url = `https://api.themoviedb.org/3/discover/movie?api_key=${key}&with_original_language=hi&sort_by=${sortParam}&primary_release_date.lte=${today}&vote_count.gte=1&page=${page}`;
+        if (year) {
+          url += `&primary_release_year=${year}`;
+        }
+      }
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("TMDB Bollywood fetch failed");
+        const data = await res.json();
+
+        totalPagesEstimate = data.total_pages ? Math.min(data.total_pages, 500) : 50;
+
+        return (data.results || []).map(m => ({
+          id: m.id,
+          tmdbid: m.id,
+          imdb_id: null,
+          title: m.title || m.original_title,
+          year: m.release_date ? m.release_date.split("-")[0] : "",
+          poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
+          views: Math.floor((m.popularity || 10) * 120),
+          description: m.overview || "Bollywood release.",
+          imdbRating: m.vote_average ? m.vote_average.toFixed(1) : null
+        }));
+      } catch (e) {
+        currentTmdbKeyIndex++;
+        throw e;
+      }
+    }
+
+    /* ==============================================================
        RESILIENT CATALOG FETCH & SEARCH ENGINE
        ============================================================== */
     async function robustFetchJson(url) {
@@ -1174,7 +1239,7 @@
     }
 
     async function fetchFailoverCatalog(query, year, page) {
-      updateBadge("Failover Catalog (Live)", "status-failover");
+      updateBadge("Directory Search", "status-proxy");
 
       if (query && /^tt\d+$/i.test(query)) {
         const res = await fetch(`https://v3-cinemeta.strem.io/meta/movie/${query}.json`);
@@ -1239,6 +1304,27 @@
       const q = mainSearchInput.value.trim();
       const yr = yearSelect.value.trim();
 
+      let movies = [];
+
+      // 1. BOLLYWOOD MODE ACTIVE -> Queries Live Bollywood releases
+      if (isBollywoodModeActive) {
+        resultsCount.textContent = `Loading Bollywood ${isLatestReleasedActive ? '(Latest Releases First)' : ''} ${yr ? `for Year ${yr}` : ''}...`;
+        try {
+          movies = await fetchLiveBollywoodCatalog(q, yr, currentPage);
+          if (q.length > 0) {
+            movies = sortDictionaryOrder(movies, q);
+          }
+          renderMovies(movies);
+          resultsCount.textContent = `Showing ${movies.length} Bollywood Titles ${yr ? `(${yr})` : ''} (Latest First)`;
+          pageInfo.textContent = `Page ${currentPage} of ${totalPagesEstimate}`;
+          renderNumberedPagination(currentPage, totalPagesEstimate);
+          return;
+        } catch (err) {
+          console.warn("Bollywood API fallback triggered", err);
+        }
+      }
+
+      // 2. STANDARD / HOLLYWOOD CATALOG
       let statusMsg = "Connecting to catalog...";
       if (q && yr) statusMsg = `Searching for "${q}" in Year ${yr}...`;
       else if (q) statusMsg = `Searching for "${q}"...`;
@@ -1250,7 +1336,6 @@
       params.set("page", currentPage);
       params.set("resultsPerPage", resultsPerPage);
 
-      // When searching by text, NEVER force year sort! Let relevance take over.
       if (!q && isLatestReleasedActive) {
         params.set("ordering", "year");
         params.set("direction", "desc");
@@ -1274,13 +1359,11 @@
       }
 
       const endpoint = `${CATALOG_API}?${params.toString()}`;
-      let movies = [];
 
       try {
         const data = await robustFetchJson(endpoint);
         movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
 
-        // If searching and Vidspark returns 0 or missing titles, auto-merge with directory
         if (q && movies.length === 0) {
           movies = await fetchFailoverCatalog(q, yr, currentPage);
         }
@@ -1305,7 +1388,7 @@
         }
       }
 
-      // PRE-RESOLVE TITLES IF MISSING SO SORTING WORKS INSTANTLY
+      // Pre-resolve titles if missing
       for (const item of movies) {
         if (!extractTitle(item) && item.imdb_id) {
           const cached = metaCache.get(item.imdb_id);
@@ -1313,7 +1396,7 @@
         }
       }
 
-      // APPLY DICTIONARY / RELEVANCE SORTING
+      // Apply Dictionary relevance sorting
       if (q.length > 0 && !/^tt\d+$/i.test(q) && !/^\d+$/.test(q)) {
         movies = sortDictionaryOrder(movies, q);
       }
@@ -1350,7 +1433,7 @@
       if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
       if (item.image && item.image.startsWith("http")) return item.image;
       
-      const { imdb } = resolveMovieIds(item);
+      const { imdb, tmdb } = resolveMovieIds(item);
       if (imdb) return `https://images.metahub.space/poster/medium/${imdb}/img`;
       return null;
     }
@@ -1572,6 +1655,14 @@
       fetchCatalog();
     });
 
+    // Bollywood Live Catalog Toggle
+    btnToggleBollywood.addEventListener("click", () => {
+      isBollywoodModeActive = !isBollywoodModeActive;
+      btnToggleBollywood.classList.toggle("active", isBollywoodModeActive);
+      currentPage = 1;
+      fetchCatalog();
+    });
+
     btnToggleLatest.addEventListener("click", () => {
       isLatestReleasedActive = !isLatestReleasedActive;
       btnToggleLatest.classList.toggle("active", isLatestReleasedActive);
@@ -1584,6 +1675,8 @@
       searchClearBtn.style.display = "none";
       yearSelect.value = "";
       isLatestReleasedActive = true;
+      isBollywoodModeActive = false;
+      btnToggleBollywood.classList.remove("active");
       btnToggleLatest.classList.add("active");
       currentPage = 1;
       fetchCatalog();
@@ -1596,6 +1689,7 @@
       })[m]);
     }
 
+    // Initial load
     fetchCatalog();
   </script>
 </body>
