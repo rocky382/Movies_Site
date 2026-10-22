@@ -588,17 +588,18 @@
   <section class="theater-section" id="theater">
     <div class="theater-container">
       
-      <!-- Video Player Screen -->
+      <!-- Video Player Screen (SANDBOXED TO PREVENT MALICIOUS POPUPS) -->
       <div class="player-column">
         <div class="screen-wrapper" id="playerScreen">
-          <!-- Direct Server loaded by default with full autoplay permissions -->
+          <!-- Notice the sandbox attribute: explicitly prevents popups and external redirects -->
           <iframe 
             id="streamPlayer" 
             src="https://vidspark.to/movie/tt4154796" 
+            sandbox="allow-scripts allow-same-origin allow-presentation"
             allowfullscreen="true" 
             webkitallowfullscreen="true" 
             mozallowfullscreen="true" 
-            allow="accelerometer; autoplay *; clipboard-write; encrypted-media *; gyroscope; picture-in-picture; web-share; fullscreen *" 
+            allow="accelerometer; autoplay *; clipboard-write; encrypted-media *; gyroscope; picture-in-picture; web-share" 
             frameborder="0">
           </iframe>
         </div>
@@ -606,7 +607,6 @@
         <div class="player-toolbar">
           <div class="server-selector">
             <span style="color: var(--text-muted); font-size: 0.78rem;">Server:</span>
-            <!-- Direct Server is Active by Default -->
             <button class="server-btn active" id="srvDirect" onclick="switchServer('direct')">Direct Server (Default)</button>
             <button class="server-btn" id="srvCdn" onclick="switchServer('cdn')">CDN Server</button>
           </div>
@@ -702,7 +702,6 @@
   <script>
     const CATALOG_API = "https://vidspark.to/api/discover/movies";
     let activeMovieId = "tt4154796";
-    // Default server is DIRECT SERVER
     let activeServerType = "direct";
     let currentPage = 1;
     const resultsPerPage = 24;
@@ -710,7 +709,6 @@
 
     const metaCache = new Map();
 
-    // DOM Elements
     const streamPlayer = document.getElementById("streamPlayer");
     const theaterPoster = document.getElementById("theaterPoster");
     const theaterTitle = document.getElementById("theaterTitle");
@@ -738,7 +736,6 @@
     const quickIdInput = document.getElementById("quickIdInput");
     const quickPlayBtn = document.getElementById("quickPlayBtn");
 
-    // Builds the URL with autoplay flag
     function buildStreamUrl(id, serverType = activeServerType, autoPlay = true) {
       const base = (serverType === "direct")
         ? `https://vidspark.to/movie/${id}`
@@ -763,26 +760,23 @@
       alert("Stream URL copied to clipboard:\n" + url);
     }
 
-    // Play movie immediately on same page with instant autoplay
     function playMovie(id, title, poster, year) {
       if (!id) return;
       activeMovieId = String(id).trim();
 
-      // Autoplay URL with parameters
-      const streamUrl = buildStreamUrl(activeMovieId, activeServerType, true);
-      streamPlayer.src = streamUrl;
+      // Ensure the sandboxing is strictly retained when src updates
+      streamPlayer.setAttribute("sandbox", "allow-scripts allow-same-origin allow-presentation");
+      streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType, true);
 
       theaterTitle.textContent = title || `Movie (${activeMovieId})`;
       if (poster) theaterPoster.src = poster;
       theaterYear.textContent = year || "";
       theaterSynopsis.textContent = "Buffering stream...";
 
-      // Highlight active card
       document.querySelectorAll(".movie-card").forEach(c => c.classList.remove("now-playing"));
       const card = document.getElementById(`card-${activeMovieId}`);
       if (card) card.classList.add("now-playing");
 
-      // Smooth scroll to player
       window.scrollTo({ top: 0, behavior: "smooth" });
 
       if (activeMovieId.startsWith("tt")) {
@@ -831,7 +825,6 @@
       }
     });
 
-    // Multi-proxy & Failover Unblock Engine
     async function robustFetchJson(url) {
       try {
         const directRes = await fetch(url, { mode: 'cors', credentials: 'omit' });
@@ -1031,7 +1024,6 @@
           </div>
         `;
 
-        // Direct user gesture triggers instant autoplay
         card.addEventListener("click", () => {
           playMovie(streamId, title, poster, year);
         });
