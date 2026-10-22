@@ -115,7 +115,7 @@
       background: var(--accent-hover);
     }
 
-    /* THEATER SECTION (In-Page Player) */
+    /* THEATER SECTION */
     .theater-section {
       background: radial-gradient(circle at top, #181d2c 0%, #090b10 80%);
       border-bottom: 1px solid var(--border);
@@ -137,7 +137,6 @@
       gap: 0.75rem;
     }
 
-    /* 16:9 Video Player Screen */
     .screen-wrapper {
       position: relative;
       width: 100%;
@@ -157,7 +156,6 @@
       border: none;
     }
 
-    /* Player Controls Bar */
     .player-toolbar {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -215,7 +213,6 @@
       background: var(--border);
     }
 
-    /* Theater Sidebar Details */
     .meta-column {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -514,7 +511,6 @@
       font-weight: 700;
     }
 
-    /* Skeleton Loading */
     .skeleton-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -535,7 +531,6 @@
       100% { background-position: -200% 0; }
     }
 
-    /* Pagination */
     .pagination {
       display: flex;
       justify-content: center;
@@ -556,7 +551,6 @@
 </head>
 <body>
 
-  <!-- Header -->
   <header>
     <div class="header-inner">
       <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
@@ -566,7 +560,6 @@
         <div>Enjoy <span>Cinema</span></div>
       </div>
 
-      <!-- Quick Play By ID Form -->
       <div class="quick-player-form">
         <input type="text" id="quickIdInput" placeholder="Movie ID (e.g. tt4154796)" value="tt4154796" />
         <button id="quickPlayBtn">▶ Play in Page</button>
@@ -574,14 +567,11 @@
     </div>
   </header>
 
-  <!-- THEATER SECTION (Plays directly in this page) -->
+  <!-- THEATER -->
   <section class="theater-section" id="theater">
     <div class="theater-container">
-      
-      <!-- Video Player Column -->
       <div class="player-column">
         <div class="screen-wrapper" id="playerScreen">
-          <!-- Live Stream Player -->
           <iframe 
             id="streamPlayer" 
             src="https://cdn.vidspark.to/movie/tt4154796" 
@@ -593,11 +583,10 @@
           </iframe>
         </div>
 
-        <!-- Controls Toolbar (Fullscreen Removed) -->
         <div class="player-toolbar">
           <div class="server-selector">
             <span style="color: var(--text-muted); font-size: 0.78rem;">Server:</span>
-            <button class="server-btn active" id="srvCdn" onclick="switchServer('cdn')">CDN (Recommended)</button>
+            <button class="server-btn active" id="srvCdn" onclick="switchServer('cdn')">CDN Server</button>
             <button class="server-btn" id="srvDirect" onclick="switchServer('direct')">Direct Server</button>
           </div>
 
@@ -608,7 +597,6 @@
         </div>
       </div>
 
-      <!-- Live Movie Info Column -->
       <div class="meta-column">
         <div class="meta-poster-box">
           <img id="theaterPoster" referrerpolicy="no-referrer" src="https://images.metahub.space/poster/medium/tt4154796/img" alt="Poster" />
@@ -627,16 +615,14 @@
           <span class="genre-tag">Sci-Fi</span>
         </div>
         <p class="meta-synopsis" id="theaterSynopsis">
-          After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.
+          After the devastating events of Avengers: Infinity War, the universe is in ruins. The Avengers assemble once more to reverse Thanos' actions and restore balance to the universe.
         </p>
       </div>
-
     </div>
   </section>
 
-  <!-- CATALOG EXPLORER -->
+  <!-- CATALOG -->
   <main class="catalog-section">
-    <!-- Quick Filter Chips -->
     <div class="chips-bar">
       <div class="chip active" data-order="views" data-dir="desc">🔥 Most Viewed</div>
       <div class="chip" data-order="views_day" data-dir="desc">⚡ Trending Today</div>
@@ -645,7 +631,6 @@
       <div class="chip" data-special="slider">🎞️ Slider Picks</div>
     </div>
 
-    <!-- Search & Filters Bar -->
     <div class="filter-bar">
       <input type="text" id="queryInput" class="search-input" placeholder="Search by title (min 3 chars)..." />
       
@@ -670,16 +655,13 @@
       <button id="resetBtn" class="reset-btn">Reset</button>
     </div>
 
-    <!-- Results Status -->
     <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
-      <span id="resultsCount">Connecting to Enjoy catalog...</span>
+      <span id="resultsCount">Connecting to catalog...</span>
       <span id="pageInfo">Page 1</span>
     </div>
 
-    <!-- Movies Grid -->
     <div id="movieGrid" class="movie-grid"></div>
 
-    <!-- Pagination -->
     <div class="pagination" id="paginationWrap" style="display: none;">
       <button id="prevBtn" class="reset-btn">← Previous</button>
       <span id="pageIndicator" style="font-weight: 600; font-size: 0.9rem;">1</span>
@@ -690,13 +672,27 @@
   <script>
     const CATALOG_API = "https://vidspark.to/api/discover/movies";
     let activeMovieId = "tt4154796";
-    let activeServerType = "cdn"; // 'cdn' | 'direct'
+    let activeServerType = "cdn";
     let currentPage = 1;
     const resultsPerPage = 24;
     let activeSpecialFilter = null;
-
-    // Cache Cinemeta metadata for fast retrieval
     const metaCache = new Map();
+
+    // Built-in Seed catalog so your GitHub page never goes blank
+    const SEED_MOVIES = [
+      { id: "tt4154796", imdb_id: "tt4154796", title: "Avengers: Endgame", year: "2019", views: 2450000 },
+      { id: "tt1375666", imdb_id: "tt1375666", title: "Inception", year: "2010", views: 1820000 },
+      { id: "tt0468569", imdb_id: "tt0468569", title: "The Dark Knight", year: "2008", views: 2310000 },
+      { id: "tt0816692", imdb_id: "tt0816692", title: "Interstellar", year: "2014", views: 1950000 },
+      { id: "tt1087260", imdb_id: "tt1087260", title: "Spider-Man: No Way Home", year: "2021", views: 2100000 },
+      { id: "tt1877830", imdb_id: "tt1877830", title: "The Batman", year: "2022", views: 1650000 },
+      { id: "tt15398776", imdb_id: "tt15398776", title: "Oppenheimer", year: "2023", views: 1890000 },
+      { id: "tt1160419", imdb_id: "tt1160419", title: "Dune", year: "2021", views: 1420000 },
+      { id: "tt15239678", imdb_id: "tt15239678", title: "Dune: Part Two", year: "2024", views: 1780000 },
+      { id: "tt9362722", imdb_id: "tt9362722", title: "Spider-Man: Across the Spider-Verse", year: "2023", views: 1540000 },
+      { id: "tt6710474", imdb_id: "tt6710474", title: "Everything Everywhere All at Once", year: "2022", views: 1220000 },
+      { id: "tt1745960", imdb_id: "tt1745960", title: "Top Gun: Maverick", year: "2022", views: 1690000 }
+    ];
 
     // Elements
     const streamPlayer = document.getElementById("streamPlayer");
@@ -715,8 +711,6 @@
     const paginationWrap = document.getElementById("paginationWrap");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
-
-    // Inputs
     const queryInput = document.getElementById("queryInput");
     const orderingSelect = document.getElementById("orderingSelect");
     const directionSelect = document.getElementById("directionSelect");
@@ -726,16 +720,12 @@
     const quickIdInput = document.getElementById("quickIdInput");
     const quickPlayBtn = document.getElementById("quickPlayBtn");
 
-    // Return clean stream URL based on active server
     function buildStreamUrl(id, serverType = activeServerType) {
-      if (serverType === "cdn") {
-        return `https://cdn.vidspark.to/movie/${id}`;
-      } else {
-        return `https://vidspark.to/movie/${id}`;
-      }
+      return (serverType === "cdn")
+        ? `https://cdn.vidspark.to/movie/${id}`
+        : `https://vidspark.to/movie/${id}`;
     }
 
-    // Switch between CDN and Direct server right on the page
     function switchServer(type) {
       activeServerType = type;
       srvCdn.classList.toggle("active", type === "cdn");
@@ -744,46 +734,36 @@
     }
 
     function reloadStream() {
-      const url = buildStreamUrl(activeMovieId, activeServerType);
-      streamPlayer.src = url;
+      streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType);
     }
 
     function copyStreamUrl() {
       const url = buildStreamUrl(activeMovieId, activeServerType);
       navigator.clipboard.writeText(url);
-      alert("Stream URL copied to clipboard:\n" + url);
+      alert("Stream URL copied:\n" + url);
     }
 
-    // Play Movie on the SAME PAGE
     function playMovie(id, title, poster, year) {
       if (!id) return;
       activeMovieId = String(id).trim();
+      streamPlayer.src = buildStreamUrl(activeMovieId, activeServerType);
 
-      // Immediately set iframe source on the same page
-      const streamUrl = buildStreamUrl(activeMovieId, activeServerType);
-      streamPlayer.src = streamUrl;
-
-      // Update Sidebar Info
       theaterTitle.textContent = title || `Movie (${activeMovieId})`;
       if (poster) theaterPoster.src = poster;
       theaterYear.textContent = year || "";
       theaterSynopsis.textContent = "Loading movie information...";
 
-      // Highlight active movie in grid
       document.querySelectorAll(".movie-card").forEach(c => c.classList.remove("now-playing"));
       const card = document.getElementById(`card-${activeMovieId}`);
       if (card) card.classList.add("now-playing");
 
-      // Smooth scroll up to player
       window.scrollTo({ top: 0, behavior: "smooth" });
 
-      // If it's an IMDb ID, fetch Cinemeta details
       if (activeMovieId.startsWith("tt")) {
         fetchCinemeta(activeMovieId);
       }
     }
 
-    // Fetch movie details from Cinemeta
     async function fetchCinemeta(imdbId) {
       if (metaCache.has(imdbId)) {
         applyMeta(metaCache.get(imdbId));
@@ -798,8 +778,8 @@
             applyMeta(json.meta);
           }
         }
-      } catch (err) {
-        theaterSynopsis.textContent = "Click Play inside the player above to start streaming from Enjoy.";
+      } catch {
+        theaterSynopsis.textContent = "Click play inside the player above to start streaming from Enjoy.";
       }
     }
 
@@ -814,20 +794,138 @@
       }
     }
 
-    // Quick Play Input handler
-    quickPlayBtn.addEventListener("click", () => {
-      const id = quickIdInput.value.trim();
-      if (id) playMovie(id, id, null, "");
-    });
+    // MULTI-PROXIES RESILIENT FETCHER (Prevents GitHub Pages 429/CORS failures)
+    async function fetchWithProxyFallback(targetUrl) {
+      const cacheBustUrl = `${targetUrl}&_cb=${Date.now()}`;
 
-    quickIdInput.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") {
-        const id = quickIdInput.value.trim();
-        if (id) playMovie(id, id, null, "");
+      // Strategy 1: Direct fetch
+      try {
+        const res = await fetch(cacheBustUrl);
+        if (res.ok) {
+          const txt = await res.text();
+          const json = JSON.parse(txt);
+          if (json) return { data: json, source: "Direct" };
+        }
+      } catch (e) {}
+
+      // Strategy 2: CodeTabs CORS Proxy
+      try {
+        const pUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cacheBustUrl)}`;
+        const res = await fetch(pUrl);
+        if (res.ok) {
+          const txt = await res.text();
+          const json = JSON.parse(txt);
+          if (json) return { data: json, source: "Proxy 1" };
+        }
+      } catch (e) {}
+
+      // Strategy 3: CorsProxy.io
+      try {
+        const pUrl = `https://corsproxy.io/?url=${encodeURIComponent(cacheBustUrl)}`;
+        const res = await fetch(pUrl);
+        if (res.ok) {
+          const txt = await res.text();
+          const json = JSON.parse(txt);
+          if (json) return { data: json, source: "Proxy 2" };
+        }
+      } catch (e) {}
+
+      // Strategy 4: AllOrigins Raw
+      try {
+        const pUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(cacheBustUrl)}`;
+        const res = await fetch(pUrl);
+        if (res.ok) {
+          const txt = await res.text();
+          const json = JSON.parse(txt);
+          if (json) return { data: json, source: "Proxy 3" };
+        }
+      } catch (e) {}
+
+      // Strategy 5: AllOrigins JSON Wrapper
+      try {
+        const pUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(cacheBustUrl)}`;
+        const res = await fetch(pUrl);
+        if (res.ok) {
+          const wrapper = await res.json();
+          if (wrapper && wrapper.contents) {
+            const json = JSON.parse(wrapper.contents);
+            if (json) return { data: json, source: "Proxy 4" };
+          }
+        }
+      } catch (e) {}
+
+      throw new Error("CORS proxy chain exhausted");
+    }
+
+    async function fetchCatalog() {
+      renderSkeletons();
+      resultsCount.textContent = "Connecting to catalog...";
+
+      const params = new URLSearchParams();
+      params.set("page", currentPage);
+      params.set("resultsPerPage", resultsPerPage);
+      params.set("ordering", orderingSelect.value);
+      params.set("direction", directionSelect.value);
+
+      const q = queryInput.value.trim();
+      if (q.length >= 3) params.set("query", q);
+
+      const yr = yearInput.value.trim();
+      if (yr) params.set("year", yr);
+
+      if (activeSpecialFilter === "featured") params.set("featured", "1");
+      if (activeSpecialFilter === "slider") params.set("slider", "1");
+
+      const endpoint = `${CATALOG_API}?${params.toString()}`;
+
+      try {
+        const result = await fetchWithProxyFallback(endpoint);
+        const data = result.data;
+        const movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
+
+        if (movies && movies.length > 0) {
+          // Cache successful response to LocalStorage
+          try { localStorage.setItem("enjoy_cache", JSON.stringify(movies)); } catch(e){}
+          renderMovies(movies);
+          resultsCount.textContent = `Showing ${movies.length} titles (${result.source})`;
+        } else {
+          loadOfflineFallback();
+        }
+      } catch (err) {
+        console.warn("All proxies failed, loading cached catalog...", err);
+        loadOfflineFallback();
       }
-    });
 
-    // Helper: Determine stream ID
+      pageInfo.textContent = `Page ${currentPage}`;
+      pageIndicator.textContent = currentPage;
+      prevBtn.disabled = currentPage <= 1;
+      paginationWrap.style.display = "flex";
+    }
+
+    function loadOfflineFallback() {
+      let cachedMovies = null;
+      try {
+        const raw = localStorage.getItem("enjoy_cache");
+        if (raw) cachedMovies = JSON.parse(raw);
+      } catch(e){}
+
+      const moviesToRender = (cachedMovies && cachedMovies.length > 0) ? cachedMovies : SEED_MOVIES;
+      renderMovies(moviesToRender);
+      resultsCount.textContent = `Showing ${moviesToRender.length} titles (Offline / Backup mode)`;
+    }
+
+    function renderSkeletons() {
+      grid.innerHTML = Array(12).fill(0).map(() => `
+        <div class="skeleton-card">
+          <div class="skeleton-img"></div>
+          <div style="padding: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
+            <div style="height: 14px; background: #222838; border-radius: 4px; width: 75%;"></div>
+            <div style="height: 10px; background: #1a1f2e; border-radius: 4px; width: 40%;"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
     function getStreamId(item) {
       return item.imdb_id || 
         (typeof item.id === 'string' && item.id.startsWith('tt') ? item.id : null) || 
@@ -857,78 +955,8 @@
       return null;
     }
 
-    // Fetch movie list from catalog API
-    async function fetchCatalog() {
-      renderSkeletons();
-      resultsCount.textContent = "Connecting to Enjoy catalog...";
-
-      const params = new URLSearchParams();
-      params.set("page", currentPage);
-      params.set("resultsPerPage", resultsPerPage);
-      params.set("ordering", orderingSelect.value);
-      params.set("direction", directionSelect.value);
-
-      const q = queryInput.value.trim();
-      if (q.length >= 3) params.set("query", q);
-
-      const yr = yearInput.value.trim();
-      if (yr) params.set("year", yr);
-
-      if (activeSpecialFilter === "featured") params.set("featured", "1");
-      if (activeSpecialFilter === "slider") params.set("slider", "1");
-
-      const endpoint = `${CATALOG_API}?${params.toString()}`;
-
-      try {
-        let response;
-        try {
-          response = await fetch(endpoint);
-        } catch {
-          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(endpoint)}`;
-          response = await fetch(proxy);
-        }
-
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const data = await response.json();
-        const movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
-
-        renderMovies(movies);
-        resultsCount.textContent = `Showing ${movies.length} titles`;
-        pageInfo.textContent = `Page ${currentPage}`;
-        pageIndicator.textContent = currentPage;
-        prevBtn.disabled = currentPage <= 1;
-        nextBtn.disabled = movies.length < resultsPerPage;
-        paginationWrap.style.display = "flex";
-      } catch (err) {
-        grid.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem;">
-            <p style="color: #ef4444; margin-bottom: 1rem;">Failed to fetch catalog: ${err.message}</p>
-            <button class="reset-btn" onclick="fetchCatalog()">Retry</button>
-          </div>
-        `;
-      }
-    }
-
-    function renderSkeletons() {
-      grid.innerHTML = Array(12).fill(0).map(() => `
-        <div class="skeleton-card">
-          <div class="skeleton-img"></div>
-          <div style="padding: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
-            <div style="height: 14px; background: #222838; border-radius: 4px; width: 75%;"></div>
-            <div style="height: 10px; background: #1a1f2e; border-radius: 4px; width: 40%;"></div>
-          </div>
-        </div>
-      `).join("");
-    }
-
     function renderMovies(movies) {
       grid.innerHTML = "";
-
-      if (!movies || movies.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">No movies matched your criteria.</div>`;
-        return;
-      }
 
       movies.forEach(item => {
         let title = extractTitle(item);
@@ -960,14 +988,12 @@
           </div>
         `;
 
-        // Clicking immediately plays the movie on the SAME page
         card.addEventListener("click", () => {
           playMovie(streamId, title, poster, year);
         });
 
         grid.appendChild(card);
 
-        // Async enrich title and poster for cards if missing
         if (streamId && streamId.startsWith("tt")) {
           enrichCard(streamId, card);
         }
@@ -1013,7 +1039,19 @@
       })[m]);
     }
 
-    // Filter Listeners
+    // Handlers
+    quickPlayBtn.addEventListener("click", () => {
+      const id = quickIdInput.value.trim();
+      if (id) playMovie(id, id, null, "");
+    });
+
+    quickIdInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        const id = quickIdInput.value.trim();
+        if (id) playMovie(id, id, null, "");
+      }
+    });
+
     searchBtn.addEventListener("click", () => {
       currentPage = 1;
       fetchCatalog();
@@ -1069,7 +1107,7 @@
       });
     });
 
-    // Initial Load: Fetch catalog
+    // Run catalog fetch
     fetchCatalog();
   </script>
 </body>
