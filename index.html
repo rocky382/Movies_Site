@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vidspark Stream - Watch Movies</title>
+  <style>
+    :root {
+      --bg: #090b10;
+      --card-bg: #131722;
+      --card-hover: #1b2030;
+      --border: #222838;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --star: #fbbf24;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: rgba(15, 19, 29, 0.9);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 2rem;
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, #a5b4fc, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .quick-player-form {
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px 4px;
+    }
+
+    .quick-player-form input {
+      background: transparent;
+      border: none;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.85rem;
+      width: 150px;
+      color: #fff;
+      outline: none;
+    }
+
+    .quick-player-form button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .quick-player-form button:hover {
+      background: var(--accent-hover);
+    }
+
+    /* THEATER SECTION (In-Page Player) */
+    .theater-section {
+      background: radial-gradient(circle at top, #181d2c 0%, #090b10 80%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem 2.5rem;
+    }
+
+    .theater-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    .player-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* 16:9 Video Player Screen */
+    .screen-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 20px rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--border);
+    }
+
+    .screen-wrapper iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Player Controls Bar */
+    .player-toolbar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    .server-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .server-btn {
+      background: #1f2537;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .server-btn.active, .server-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .player-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tool-btn {
+      background: #1f2537;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .tool-btn:hover {
+      background: var(--border);
+    }
+
+    /* Theater Sidebar Details */
+    .meta-column {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .meta-poster-box {
+      width: 100%;
+      height: 220px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+
+    .meta-poster-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .meta-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #fff;
+    }
+
+    .meta-badges {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+    }
+
+    .meta-pill {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 5px;
+      color: var(--text-muted);
+    }
+
+    .meta-rating {
+      color: var(--star);
+      font-weight: 700;
+    }
+
+    .genre-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .genre-tag {
+      font-size: 0.7rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .meta-synopsis {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+
+    /* Catalog Section */
+    .catalog-section {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .chips-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .chip:hover, .chip.active {
+      color: #fff;
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    input, select {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .filter-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .filter-btn:hover { background: var(--accent-hover); }
+
+    .reset-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Grid */
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1.4rem;
+    }
+
+    .movie-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px var(--accent-glow);
+    }
+
+    .movie-card.now-playing {
+      border-color: #22c55e !important;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
+    }
+
+    .poster-box {
+      position: relative;
+      width: 100%;
+      padding-top: 150%;
+      background: #0a0d14;
+      overflow: hidden;
+    }
+
+    .poster-box img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover .poster-box img {
+      transform: scale(1.05);
+    }
+
+    .card-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .card-play-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .movie-card:hover .card-play-overlay {
+      opacity: 1;
+    }
+
+    .badge-top-right {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(10, 13, 20, 0.85);
+      backdrop-filter: blur(6px);
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .badge-top-left {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(10, 13, 20, 0.85);
+      backdrop-filter: blur(6px);
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--star);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .card-content {
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .movie-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #fff;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .movie-meta-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .playing-tag {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    /* Skeleton Loading */
+    .skeleton-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .skeleton-img {
+      width: 100%;
+      padding-top: 150%;
+      background: linear-gradient(90deg, #131722 25%, #1d2333 50%, #131722 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 960px) {
+      .theater-container {
+        grid-template-columns: 1fr;
+      }
+      .meta-column {
+        order: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </div>
+        <div>Vidspark <span>Cinema</span></div>
+      </div>
+
+      <!-- Quick Play By ID Form -->
+      <div class="quick-player-form">
+        <input type="text" id="quickIdInput" placeholder="Movie ID (e.g. tt4154796)" value="tt4154796" />
+        <button id="quickPlayBtn">▶ Play in Page</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- THEATER SECTION (Plays directly in this page) -->
+  <section class="theater-section" id="theater">
+    <div class="theater-container">
+      
+      <!-- Video Player Column -->
+      <div class="player-column">
+        <div class="screen-wrapper" id="playerScreen">
+          <!-- Live Embedded Vidspark Stream Player -->
+          <iframe 
+            id="streamPlayer" 
+            src="https://cdn.vidspark.to/movie/tt4154796" 
+            allowfullscreen="true" 
+            webkitallowfullscreen="true" 
+            mozallowfullscreen="true" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
+            frameborder="0">
+          </iframe>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="player-toolbar">
+          <div class="server-selector">
+            <span style="color: var(--text-muted); font-size: 0.78rem;">Server:</span>
+            <button class="server-btn active" id="srvCdn" onclick="switchServer('cdn')">CDN (Recommended)</button>
+            <button class="server-btn" id="srvDirect" onclick="switchServer('direct')">Direct Server</button>
+          </div>
+
+          <div class="player-actions">
+            <button class="tool-btn" onclick="reloadStream()">↻ Reload</button>
+            <button class="tool-btn" onclick="toggleTheaterFullscreen()">⛶ Fullscreen</button>
+            <button class="tool-btn" onclick="copyStreamUrl()">Copy Link</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Movie Info Column -->
+      <div class="meta-column">
+        <div class="meta-poster-box">
+          <img id="theaterPoster" referrerpolicy="no-referrer" src="https://images.metahub.space/poster/medium/tt4154796/img" alt="Poster" />
+        </div>
+        <div>
+          <h2 class="meta-title" id="theaterTitle">Avengers: Endgame</h2>
+          <div class="meta-badges" style="margin-top: 4px;">
+            <span class="meta-pill" id="theaterYear">2019</span>
+            <span class="meta-pill meta-rating" id="theaterRating">★ 8.4 / 10</span>
+            <span class="playing-tag">PLAYING NOW</span>
+          </div>
+        </div>
+        <div class="genre-list" id="theaterGenres">
+          <span class="genre-tag">Action</span>
+          <span class="genre-tag">Adventure</span>
+          <span class="genre-tag">Sci-Fi</span>
+        </div>
+        <p class="meta-synopsis" id="theaterSynopsis">
+          After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CATALOG EXPLORER -->
+  <main class="catalog-section">
+    <!-- Quick Filter Chips -->
+    <div class="chips-bar">
+      <div class="chip active" data-order="views" data-dir="desc">🔥 Most Viewed</div>
+      <div class="chip" data-order="views_day" data-dir="desc">⚡ Trending Today</div>
+      <div class="chip" data-order="year" data-dir="desc">📅 Latest Releases</div>
+      <div class="chip" data-special="featured">🌟 Featured</div>
+      <div class="chip" data-special="slider">🎞️ Slider Picks</div>
+    </div>
+
+    <!-- Search & Filters Bar -->
+    <div class="filter-bar">
+      <input type="text" id="queryInput" class="search-input" placeholder="Search by title (min 3 chars)..." />
+      
+      <select id="orderingSelect">
+        <option value="views">Sort: Total Views</option>
+        <option value="views_day">Sort: Views (Today)</option>
+        <option value="views_week">Sort: Views (This Week)</option>
+        <option value="views_month">Sort: Views (This Month)</option>
+        <option value="year">Sort: Release Year</option>
+        <option value="title">Sort: Title</option>
+        <option value="created_at">Sort: Recently Added</option>
+      </select>
+
+      <select id="directionSelect">
+        <option value="desc">Descending ↓</option>
+        <option value="asc">Ascending ↑</option>
+      </select>
+
+      <input type="number" id="yearInput" style="width: 90px;" placeholder="Year" min="1900" max="2099" />
+
+      <button id="searchBtn" class="filter-btn">Search</button>
+      <button id="resetBtn" class="reset-btn">Reset</button>
+    </div>
+
+    <!-- Results Status -->
+    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+      <span id="resultsCount">Connecting to Vidspark catalog...</span>
+      <span id="pageInfo">Page 1</span>
+    </div>
+
+    <!-- Movies Grid -->
+    <div id="movieGrid" class="movie-grid"></div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="paginationWrap" style="display: none;">
+      <button id="prevBtn" class="reset-btn">← Previous</button>
+      <span id="pageIndicator" style="font-weight: 600; font-size: 0.9rem;">1</span>
+      <button id="nextBtn" class="reset-btn">Next →</button>
+    </div>
+  </main>
+
+  <script>
+    const CATALOG_API = "https://vidspark.to/api/discover/movies";
+    let activeMovieId = "tt4154796";
+    let activeServerType = "cdn"; // 'cdn' | 'direct'
+    let currentPage = 1;
+    const resultsPerPage = 24;
+    let activeSpecialFilter = null;
+
+    // Cache Cinemeta metadata for fast retrieval
+    const metaCache = new Map();
+
+    // Elements
+    const streamPlayer = document.getElementById("streamPlayer");
+    const theaterPoster = document.getElementById("theaterPoster");
+    const theaterTitle = document.getElementById("theaterTitle");
+    const theaterYear = document.getElementById("theaterYear");
+    const theaterRating = document.getElementById("theaterRating");
+    const theaterGenres = document.getElementById("theaterGenres");
+    const theaterSynopsis = document.getElementById("theaterSynopsis");
+    const srvCdn = document.getElementById("srvCdn");
+    const srvDirect = document.getElementById("srvDirect");
+    const grid = document.getElementById("movieGrid");
+    const resultsCount = document.getElementById("resultsCount");
+    const pageInfo = document.getElementById("pageInfo");
+    const pageIndicator = document.getElementById("pageIndicator");
+    const paginationWrap = document.getElementById("paginationWrap");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // Inputs
+    const queryInput = document.getElementById("queryInput");
+    const orderingSelect = document.getElementById("orderingSelect");
+    const directionSelect = document.getElementById("directionSelect");
+    const yearInput = document.getElementById("yearInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const quickIdInput = document.getElementById("quickIdInput");
+    const quickPlayBtn = document.getElementById("quickPlayBtn");
+
+    // Return the clean stream URL based on active server
+    function buildStreamUrl(id, serverType = activeServerType) {
+      if (serverType === "cdn") {
+        return `https://cdn.vidspark.to/movie/${id}`;
+      } else {
+        return `https://vidspark.to/movie/${id}`;
+      }
+    }
+
+    // Switch between CDN and Direct server right on the page
+    function switchServer(type) {
+      activeServerType = type;
+      srvCdn.classList.toggle("active", type === "cdn");
+      srvDirect.classList.toggle("active", type === "direct");
+      reloadStream();
+    }
+
+    function reloadStream() {
+      const url = buildStreamUrl(activeMovieId, activeServerType);
+      streamPlayer.src = url;
+    }
+
+    function toggleTheaterFullscreen() {
+      const el = document.getElementById("playerScreen");
+      if (!document.fullscreenElement) {
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function copyStreamUrl() {
+      const url = buildStreamUrl(activeMovieId, activeServerType);
+      navigator.clipboard.writeText(url);
+      alert("Stream URL copied to clipboard:\n" + url);
+    }
+
+    // Play Movie on the SAME PAGE
+    function playMovie(id, title, poster, year) {
+      if (!id) return;
+      activeMovieId = String(id).trim();
+
+      // Immediately set iframe source on the same page
+      const streamUrl = buildStreamUrl(activeMovieId, activeServerType);
+      streamPlayer.src = streamUrl;
+
+      // Update Sidebar Info
+      theaterTitle.textContent = title || `Movie (${activeMovieId})`;
+      if (poster) theaterPoster.src = poster;
+      theaterYear.textContent = year || "";
+      theaterSynopsis.textContent = "Loading movie information...";
+
+      // Highlight active movie in grid
+      document.querySelectorAll(".movie-card").forEach(c => c.classList.remove("now-playing"));
+      const card = document.getElementById(`card-${activeMovieId}`);
+      if (card) card.classList.add("now-playing");
+
+      // Smooth scroll up to player
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // If it's an IMDb ID, fetch Cinemeta details
+      if (activeMovieId.startsWith("tt")) {
+        fetchCinemeta(activeMovieId);
+      }
+    }
+
+    // Fetch movie details from Cinemeta
+    async function fetchCinemeta(imdbId) {
+      if (metaCache.has(imdbId)) {
+        applyMeta(metaCache.get(imdbId));
+        return;
+      }
+      try {
+        const res = await fetch(`https://v3-cinemeta.strem.io/meta/movie/${imdbId}.json`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.meta) {
+            metaCache.set(imdbId, json.meta);
+            applyMeta(json.meta);
+          }
+        }
+      } catch (err) {
+        theaterSynopsis.textContent = "Click Play inside the player above to start streaming from Vidspark.";
+      }
+    }
+
+    function applyMeta(meta) {
+      if (meta.name) theaterTitle.textContent = meta.name;
+      if (meta.poster) theaterPoster.src = meta.poster;
+      if (meta.year) theaterYear.textContent = meta.year;
+      if (meta.imdbRating) theaterRating.textContent = `★ ${meta.imdbRating} / 10`;
+      if (meta.description) theaterSynopsis.textContent = meta.description;
+      if (meta.genres && meta.genres.length > 0) {
+        theaterGenres.innerHTML = meta.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join("");
+      }
+    }
+
+    // Quick Play Input handler
+    quickPlayBtn.addEventListener("click", () => {
+      const id = quickIdInput.value.trim();
+      if (id) playMovie(id, id, null, "");
+    });
+
+    quickIdInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        const id = quickIdInput.value.trim();
+        if (id) playMovie(id, id, null, "");
+      }
+    });
+
+    // Helper: Determine stream ID
+    function getStreamId(item) {
+      return item.imdb_id || 
+        (typeof item.id === 'string' && item.id.startsWith('tt') ? item.id : null) || 
+        item.tmdbid || 
+        item.id;
+    }
+
+    function extractPoster(item) {
+      if (item.poster && item.poster.startsWith("http")) return item.poster;
+      if (item.poster_path) return item.poster_path.startsWith("http") ? item.poster_path : `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+      if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
+      if (item.image && item.image.startsWith("http")) return item.image;
+      
+      const imdb = item.imdb_id || (typeof item.id === 'string' && item.id.startsWith('tt') ? item.id : null);
+      if (imdb) return `https://images.metahub.space/poster/medium/${imdb}/img`;
+      return null;
+    }
+
+    function extractTitle(item) {
+      const t = item.title || item.Title || item.name || item.movie_title || item.original_title || item.slug;
+      if (t && typeof t === "string" && t.trim() !== "" && t.toLowerCase() !== "untitled") {
+        if (t.includes("-") && !t.includes(" ")) {
+          return t.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+        }
+        return t;
+      }
+      return null;
+    }
+
+    // Fetch movie list from Vidspark API
+    async function fetchCatalog() {
+      renderSkeletons();
+      resultsCount.textContent = "Connecting to Vidspark catalog...";
+
+      const params = new URLSearchParams();
+      params.set("page", currentPage);
+      params.set("resultsPerPage", resultsPerPage);
+      params.set("ordering", orderingSelect.value);
+      params.set("direction", directionSelect.value);
+
+      const q = queryInput.value.trim();
+      if (q.length >= 3) params.set("query", q);
+
+      const yr = yearInput.value.trim();
+      if (yr) params.set("year", yr);
+
+      if (activeSpecialFilter === "featured") params.set("featured", "1");
+      if (activeSpecialFilter === "slider") params.set("slider", "1");
+
+      const endpoint = `${CATALOG_API}?${params.toString()}`;
+
+      try {
+        let response;
+        try {
+          response = await fetch(endpoint);
+        } catch {
+          const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(endpoint)}`;
+          response = await fetch(proxy);
+        }
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        const movies = Array.isArray(data) ? data : (data.data || data.results || data.movies || []);
+
+        renderMovies(movies);
+        resultsCount.textContent = `Showing ${movies.length} titles`;
+        pageInfo.textContent = `Page ${currentPage}`;
+        pageIndicator.textContent = currentPage;
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = movies.length < resultsPerPage;
+        paginationWrap.style.display = "flex";
+      } catch (err) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem;">
+            <p style="color: #ef4444; margin-bottom: 1rem;">Failed to fetch catalog: ${err.message}</p>
+            <button class="reset-btn" onclick="fetchCatalog()">Retry</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderSkeletons() {
+      grid.innerHTML = Array(12).fill(0).map(() => `
+        <div class="skeleton-card">
+          <div class="skeleton-img"></div>
+          <div style="padding: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
+            <div style="height: 14px; background: #222838; border-radius: 4px; width: 75%;"></div>
+            <div style="height: 10px; background: #1a1f2e; border-radius: 4px; width: 40%;"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderMovies(movies) {
+      grid.innerHTML = "";
+
+      if (!movies || movies.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">No movies matched your criteria.</div>`;
+        return;
+      }
+
+      movies.forEach(item => {
+        let title = extractTitle(item);
+        const year = item.year || (item.release_date ? item.release_date.split("-")[0] : "");
+        const streamId = getStreamId(item);
+        const poster = extractPoster(item);
+        const isCurrentlyPlaying = (streamId === activeMovieId);
+
+        const card = document.createElement("div");
+        card.className = `movie-card ${isCurrentlyPlaying ? 'now-playing' : ''}`;
+        card.id = `card-${streamId}`;
+        card.innerHTML = `
+          <div class="poster-box">
+            <img referrerpolicy="no-referrer" src="${poster || 'https://images.metahub.space/poster/medium/' + streamId + '/img'}" alt="${title || 'Movie'}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'450\\'><rect fill=\\'%23131722\\' width=\\'300\\' height=\\'450\\'/><text fill=\\'%2394a3b8\\' font-size=\\'14\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>Poster Unavailable</text></svg>'" />
+            <div class="card-play-overlay">
+              <div class="card-play-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </div>
+            </div>
+            ${year ? `<span class="badge-top-right">${year}</span>` : ""}
+            <span class="badge-top-left" style="display: none;" id="rating-${streamId}"></span>
+          </div>
+          <div class="card-content">
+            <h4 class="movie-name" id="title-${streamId}">${escapeHtml(title || (streamId ? `IMDb: ${streamId}` : `Movie #${item.id}`))}</h4>
+            <div class="movie-meta-info">
+              <span>${item.views ? Number(item.views).toLocaleString() + ' views' : ''}</span>
+              <span class="playing-tag">▶ PLAY</span>
+            </div>
+          </div>
+        `;
+
+        // Clicking immediately plays the movie in the SAME page
+        card.addEventListener("click", () => {
+          playMovie(streamId, title, poster, year);
+        });
+
+        grid.appendChild(card);
+
+        // Async enrich title and poster for cards if missing
+        if (streamId && streamId.startsWith("tt")) {
+          enrichCard(streamId, card);
+        }
+      });
+    }
+
+    async function enrichCard(imdbId, card) {
+      if (metaCache.has(imdbId)) {
+        updateCardWithMeta(card, metaCache.get(imdbId));
+        return;
+      }
+      try {
+        const res = await fetch(`https://v3-cinemeta.strem.io/meta/movie/${imdbId}.json`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.meta) {
+            metaCache.set(imdbId, json.meta);
+            updateCardWithMeta(card, json.meta);
+          }
+        }
+      } catch {}
+    }
+
+    function updateCardWithMeta(card, meta) {
+      const titleEl = card.querySelector(".movie-name");
+      if (titleEl && meta.name) titleEl.textContent = meta.name;
+
+      const ratingEl = card.querySelector(".badge-top-left");
+      if (ratingEl && meta.imdbRating) {
+        ratingEl.innerHTML = `★ ${meta.imdbRating}`;
+        ratingEl.style.display = "flex";
+      }
+
+      const imgEl = card.querySelector(".poster-box img");
+      if (imgEl && meta.poster && (imgEl.src.includes("Unavailable") || imgEl.src.startsWith("data:"))) {
+        imgEl.src = meta.poster;
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, m => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[m]);
+    }
+
+    // Filter Listeners
+    searchBtn.addEventListener("click", () => {
+      currentPage = 1;
+      fetchCatalog();
+    });
+
+    queryInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        currentPage = 1;
+        fetchCatalog();
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      queryInput.value = "";
+      yearInput.value = "";
+      orderingSelect.value = "views";
+      directionSelect.value = "desc";
+      activeSpecialFilter = null;
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      document.querySelector(".chip").classList.add("active");
+      currentPage = 1;
+      fetchCatalog();
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        fetchCatalog();
+        document.querySelector(".catalog-section").scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentPage++;
+      fetchCatalog();
+      document.querySelector(".catalog-section").scrollIntoView({ behavior: "smooth" });
+    });
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+
+        if (chip.dataset.special) {
+          activeSpecialFilter = chip.dataset.special;
+        } else {
+          activeSpecialFilter = null;
+          orderingSelect.value = chip.dataset.order;
+          directionSelect.value = chip.dataset.dir;
+        }
+        currentPage = 1;
+        fetchCatalog();
+      });
+    });
+
+    // Initial Load: Fetch catalog
+    fetchCatalog();
+  </script>
+</body>
+</html>
